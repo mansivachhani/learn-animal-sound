@@ -50,3 +50,27 @@ The game uses free-licensed recordings from Wikimedia Commons.
 - `assets/audio/boar.ogg`
   - Source: https://commons.wikimedia.org/wiki/File:Boar.Grwls(1).ogg
   - License: See file page on Wikimedia Commons
+- `assets/audio/fox.ogg`
+  - Source: https://commons.wikimedia.org/wiki/File:Red_Fox_(Vulpes_vulpes)_(W1CDR0001529_BD12).ogg
+  - License: See file page on Wikimedia Commons
+- `assets/audio/deer.ogg`
+  - Source: https://commons.wikimedia.org/wiki/File:Male_roe_deer_growl.ogg
+  - License: See file page on Wikimedia Commons
+- `assets/audio/goose.ogg`
+  - Source: https://commons.wikimedia.org/wiki/File:Branta_canadensis_-_Canada_Goose_-_XC62259.ogg
+  - License: See file page on Wikimedia Commons
+- `assets/audio/sparrow.ogg`
+  - Source: https://commons.wikimedia.org/wiki/File:Melospiza_melodia_-_Song_Sparrow_-_XC78059.ogg
+  - License: See file page on Wikimedia Commons
+- `assets/audio/calf.ogg`
+  - Source: https://commons.wikimedia.org/wiki/File:Mudchute_cow_1.ogg
+  - License: See file page on Wikimedia Commons
+- `assets/audio/piglet.ogg`
+  - Source: https://commons.wikimedia.org/wiki/File:Mudchute_pig_2.ogg
+  - License: See file page on Wikimedia Commons
+- `assets/audio/guinea-pig.ogg`
+  - Source: https://commons.wikimedia.org/wiki/File:Guinea_Pig_Defense_Sound.ogg
+  - License: See file page on Wikimedia Commons
+- `assets/audio/parrot.ogg`
+  - Source: https://commons.wikimedia.org/wiki/File:Parrots_perroquets.ogg
+  - License: See file page on Wikimedia Commons

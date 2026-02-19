@@ -121,6 +121,27 @@
       flex-wrap: wrap;
     }
 
+    .category-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 14px;
+    }
+
+    .category-btn {
+      background: #ffffff;
+      border: 2px solid #dbe8f8;
+      color: var(--text);
+      font-size: 0.95rem;
+      padding: 8px 12px;
+      border-radius: 999px;
+    }
+
+    .category-btn.active {
+      background: #e9f6ff;
+      border-color: var(--accent-2);
+    }
+
     button {
       border: 0;
       cursor: pointer;
@@ -356,6 +377,13 @@
       </div>
     </section>
 
+    <section class="category-bar" id="categoryBar" aria-label="Djurkategorier">
+      <button class="category-btn active" id="catHome" type="button">🏠 Home Animals</button>
+      <button class="category-btn" id="catWild" type="button">🦁 Wild Animals</button>
+      <button class="category-btn" id="catBirds" type="button">🐦 Birds</button>
+      <button class="category-btn" id="catFarm" type="button">🚜 Farm Animals</button>
+    </section>
+
     <section class="grid" id="animalGrid" aria-label="Djurknappar"></section>
 
     <p class="footer-note" id="footerText">Tips till foraldrar och larare: Anvand helskarmslage pa touchenheter i klassrummet.</p>
@@ -368,22 +396,30 @@
 
   <script>
     const animalCatalog = [
-      { id: "cow", emoji: "🐄", audio: "assets/audio/cow.ogg" },
-      { id: "dog", emoji: "🐶", audio: "assets/audio/dog.ogg" },
-      { id: "cat", emoji: "🐱", audio: "assets/audio/cat.oga" },
-      { id: "duck", emoji: "🦆", audio: "assets/audio/duck.wav" },
-      { id: "rooster", emoji: "🐓", audio: "assets/audio/rooster.ogg" },
-      { id: "sheep", emoji: "🐑", audio: "assets/audio/sheep.ogg" },
-      { id: "horse", emoji: "🐴", audio: "assets/audio/horse.ogg" },
-      { id: "frog", emoji: "🐸", audio: "assets/audio/frog.ogg" },
-      { id: "pig", emoji: "🐷", audio: "assets/audio/pig.ogg" },
-      { id: "owl", emoji: "🦉", audio: "assets/audio/owl.ogg" },
-      { id: "crow", emoji: "🐦", audio: "assets/audio/crow.ogg" },
-      { id: "goat", emoji: "🐐", audio: "assets/audio/goat.ogg" },
-      { id: "wolf", emoji: "🐺", audio: "assets/audio/wolf.ogg" },
-      { id: "monkey", emoji: "🐵", audio: "assets/audio/monkey.ogg" },
-      { id: "hen", emoji: "🐔", audio: "assets/audio/hen.ogg" },
-      { id: "boar", emoji: "🐗", audio: "assets/audio/boar.ogg" }
+      { id: "cow", emoji: "🐄", audio: "assets/audio/cow.ogg", category: "farm" },
+      { id: "dog", emoji: "🐶", audio: "assets/audio/dog.ogg", category: "home" },
+      { id: "cat", emoji: "🐱", audio: "assets/audio/cat.oga", category: "home" },
+      { id: "duck", emoji: "🦆", audio: "assets/audio/duck.wav", category: "birds" },
+      { id: "rooster", emoji: "🐓", audio: "assets/audio/rooster.ogg", category: "birds" },
+      { id: "sheep", emoji: "🐑", audio: "assets/audio/sheep.ogg", category: "farm" },
+      { id: "horse", emoji: "🐴", audio: "assets/audio/horse.ogg", category: "farm" },
+      { id: "frog", emoji: "🐸", audio: "assets/audio/frog.ogg", category: "wild" },
+      { id: "pig", emoji: "🐷", audio: "assets/audio/pig.ogg", category: "farm" },
+      { id: "owl", emoji: "🦉", audio: "assets/audio/owl.ogg", category: "birds" },
+      { id: "crow", emoji: "🐦", audio: "assets/audio/crow.ogg", category: "birds" },
+      { id: "goat", emoji: "🐐", audio: "assets/audio/goat.ogg", category: "farm" },
+      { id: "wolf", emoji: "🐺", audio: "assets/audio/wolf.ogg", category: "wild" },
+      { id: "monkey", emoji: "🐵", audio: "assets/audio/monkey.ogg", category: "wild" },
+      { id: "hen", emoji: "🐔", audio: "assets/audio/hen.ogg", category: "birds" },
+      { id: "boar", emoji: "🐗", audio: "assets/audio/boar.ogg", category: "wild" },
+      { id: "guineaPig", emoji: "🐹", audio: "assets/audio/guinea-pig.ogg", category: "home" },
+      { id: "parrot", emoji: "🦜", audio: "assets/audio/parrot.ogg", category: "home" },
+      { id: "fox", emoji: "🦊", audio: "assets/audio/fox.ogg", category: "wild" },
+      { id: "deer", emoji: "🦌", audio: "assets/audio/deer.ogg", category: "wild" },
+      { id: "goose", emoji: "🪿", audio: "assets/audio/goose.ogg", category: "birds" },
+      { id: "sparrow", emoji: "🐤", audio: "assets/audio/sparrow.ogg", category: "birds" },
+      { id: "calf", emoji: "🐮", audio: "assets/audio/calf.ogg", category: "farm" },
+      { id: "piglet", emoji: "🐖", audio: "assets/audio/piglet.ogg", category: "farm" }
     ];
 
     const animalWords = {
@@ -403,7 +439,15 @@
         wolf: { name: "Varg", sound: "Yl" },
         monkey: { name: "Apa", sound: "Tjut" },
         hen: { name: "Hona", sound: "Kackel" },
-        boar: { name: "Vildsvin", sound: "Grymt" }
+        boar: { name: "Vildsvin", sound: "Grymt" },
+        guineaPig: { name: "Marsvin", sound: "Pip" },
+        parrot: { name: "Papegoja", sound: "Skri" },
+        fox: { name: "Rav", sound: "Skall" },
+        deer: { name: "Hjort", sound: "Brol" },
+        goose: { name: "Gas", sound: "Gack" },
+        sparrow: { name: "Sparv", sound: "Kvitter" },
+        calf: { name: "Kalv", sound: "Muu" },
+        piglet: { name: "Kulting", sound: "Noff" }
       },
       en: {
         cow: { name: "Cow", sound: "Moo" },
@@ -421,7 +465,15 @@
         wolf: { name: "Wolf", sound: "Howl" },
         monkey: { name: "Monkey", sound: "Screech" },
         hen: { name: "Hen", sound: "Cluck" },
-        boar: { name: "Boar", sound: "Grunt" }
+        boar: { name: "Boar", sound: "Grunt" },
+        guineaPig: { name: "Guinea Pig", sound: "Squeak" },
+        parrot: { name: "Parrot", sound: "Squawk" },
+        fox: { name: "Fox", sound: "Bark" },
+        deer: { name: "Deer", sound: "Bellow" },
+        goose: { name: "Goose", sound: "Honk" },
+        sparrow: { name: "Sparrow", sound: "Chirp" },
+        calf: { name: "Calf", sound: "Moo" },
+        piglet: { name: "Piglet", sound: "Oink" }
       }
     };
 
@@ -434,6 +486,13 @@
         nextSound: "Nasta ljud",
         replay: "Spela igen",
         gridAria: "Djurknappar",
+        categoryAria: "Djurkategorier",
+        categories: {
+          home: "🏠 Hemdjur",
+          wild: "🦁 Vilda djur",
+          birds: "🐦 Faglar",
+          farm: "🚜 Gardsdjur"
+        },
         footer: "Tips till foraldrar och larare: Anvand helskarmslage pa touchenheter i klassrummet.",
         challenge: "Vilket djur gjorde ljudet? Tryck pa ett kort.",
         success: (animalName) => `Bra jobbat! Det ar ${animalName}. Tryck pa Nasta ljud for en ny runda.`,
@@ -448,6 +507,13 @@
         nextSound: "Next Sound",
         replay: "Hear Again",
         gridAria: "Animal buttons",
+        categoryAria: "Animal categories",
+        categories: {
+          home: "🏠 Home Animals",
+          wild: "🦁 Wild Animals",
+          birds: "🐦 Birds",
+          farm: "🚜 Farm Animals"
+        },
         footer: "Tip for parents and teachers: Use fullscreen mode on touch devices in the classroom.",
         challenge: "Which animal made that sound? Tap one card.",
         success: (animalName) => `Great job! That is the ${animalName}. Press Next Sound for another round.`,
@@ -469,6 +535,11 @@
     const footerText = document.getElementById("footerText");
     const langSvBtn = document.getElementById("langSv");
     const langEnBtn = document.getElementById("langEn");
+    const categoryBar = document.getElementById("categoryBar");
+    const catHomeBtn = document.getElementById("catHome");
+    const catWildBtn = document.getElementById("catWild");
+    const catBirdsBtn = document.getElementById("catBirds");
+    const catFarmBtn = document.getElementById("catFarm");
 
     let currentLang = "sv";
     let score = 0;
@@ -481,6 +552,7 @@
     let audioCtx = null;
     let promptKey = "warmup";
     let promptAnimalId = null;
+    let currentCategory = "home";
 
     const audioByAnimal = new Map(
       animalCatalog.map((animal) => {
@@ -659,12 +731,21 @@
       replaySoundBtn.textContent = t.replay;
       footerText.textContent = t.footer;
       grid.setAttribute("aria-label", t.gridAria);
+      categoryBar.setAttribute("aria-label", t.categoryAria);
+      catHomeBtn.textContent = t.categories.home;
+      catWildBtn.textContent = t.categories.wild;
+      catBirdsBtn.textContent = t.categories.birds;
+      catFarmBtn.textContent = t.categories.farm;
       langSvBtn.classList.toggle("active", currentLang === "sv");
       langEnBtn.classList.toggle("active", currentLang === "en");
       langSvBtn.setAttribute("aria-pressed", String(currentLang === "sv"));
       langEnBtn.setAttribute("aria-pressed", String(currentLang === "en"));
       renderCards();
       setPrompt(promptKey, promptAnimalId);
+    }
+
+    function getVisibleAnimals() {
+      return animalCatalog.filter((animal) => animal.category === currentCategory);
     }
 
     function setPrompt(key, animalId = null) {
@@ -688,7 +769,7 @@
     }
 
     function renderCards() {
-      const cards = animalCatalog.map((animal) => {
+      const cards = getVisibleAnimals().map((animal) => {
         const words = getWords(animal.id);
         const button = document.createElement("button");
         button.className = "animal-card";
@@ -726,7 +807,11 @@
     }
 
     function startChallenge() {
-      challengeAnimal = animalCatalog[Math.floor(Math.random() * animalCatalog.length)];
+      const choices = getVisibleAnimals();
+      if (choices.length === 0) {
+        return;
+      }
+      challengeAnimal = choices[Math.floor(Math.random() * choices.length)];
       challengeActive = true;
       setPrompt("challenge");
       playChallengeSound();
@@ -770,10 +855,27 @@
       applyLanguage();
     }
 
+    function setCategory(category) {
+      currentCategory = category;
+      challengeActive = false;
+      challengeAnimal = null;
+      stopAllAudio();
+      setPrompt("warmup");
+      catHomeBtn.classList.toggle("active", category === "home");
+      catWildBtn.classList.toggle("active", category === "wild");
+      catBirdsBtn.classList.toggle("active", category === "birds");
+      catFarmBtn.classList.toggle("active", category === "farm");
+      renderCards();
+    }
+
     nextSoundBtn.addEventListener("click", startChallenge);
     replaySoundBtn.addEventListener("click", playChallengeSound);
     langSvBtn.addEventListener("click", () => setLanguage("sv"));
     langEnBtn.addEventListener("click", () => setLanguage("en"));
+    catHomeBtn.addEventListener("click", () => setCategory("home"));
+    catWildBtn.addEventListener("click", () => setCategory("wild"));
+    catBirdsBtn.addEventListener("click", () => setCategory("birds"));
+    catFarmBtn.addEventListener("click", () => setCategory("farm"));
 
     applyLanguage();
   </script>
