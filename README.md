@@ -2,6 +2,10 @@
 
 An interactive, kid-friendly web game where children tap animals to hear real animal sounds and play a simple listening challenge.
 
+## Live Demo
+
+- [learn-animal-sound.vercel.app](https://learn-animal-sound.vercel.app)
+
 ## Features
 
 - Real animal audio clips (local assets)
