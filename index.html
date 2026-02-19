@@ -1,0 +1,781 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Djurens Ljudspel</title>
+  <style>
+    :root {
+      --sky: #eaf7ff;
+      --grass: #ddf4d2;
+      --card: #ffffff;
+      --text: #16324f;
+      --accent: #ff8c42;
+      --accent-2: #35a7ff;
+      --ok: #30b700;
+      --shadow: 0 8px 20px rgba(22, 50, 79, 0.15);
+      --radius: 20px;
+      --font: "Baloo 2", "Trebuchet MS", "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font);
+      color: var(--text);
+      background:
+        radial-gradient(circle at top right, #ffffff 0%, transparent 40%),
+        linear-gradient(180deg, var(--sky) 0%, var(--grass) 100%);
+      display: flex;
+      justify-content: center;
+      padding: 24px 16px 36px;
+    }
+
+    .game {
+      width: min(980px, 100%);
+    }
+
+    .header {
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      margin-bottom: 16px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.5rem, 4vw, 2.2rem);
+      letter-spacing: 0.4px;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      font-size: clamp(1rem, 2.5vw, 1.1rem);
+    }
+
+    .score {
+      font-size: 1.1rem;
+      font-weight: 700;
+      background: #fff;
+      border-radius: 999px;
+      padding: 8px 14px;
+      border: 2px solid #e3effc;
+    }
+
+    .header-side {
+      display: grid;
+      justify-items: end;
+      gap: 8px;
+    }
+
+    .lang-switch {
+      display: flex;
+      gap: 8px;
+    }
+
+    .lang-btn {
+      background: #ffffff;
+      border: 2px solid #dbe8f8;
+      color: var(--text);
+      font-size: 0.9rem;
+      padding: 8px 10px;
+      border-radius: 999px;
+    }
+
+    .lang-btn.active {
+      border-color: var(--accent-2);
+      background: #e7f3ff;
+    }
+
+    .prompt {
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .prompt-text {
+      font-size: clamp(1rem, 2.2vw, 1.2rem);
+      font-weight: 700;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 10px 14px;
+      transition: transform 0.12s ease, filter 0.18s ease;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: var(--accent-2);
+      color: #fff;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+    }
+
+    .animal-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 3px solid transparent;
+      min-height: 160px;
+      padding: 12px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      gap: 8px;
+      touch-action: manipulation;
+      user-select: none;
+    }
+
+    .animal-card.good {
+      border-color: var(--ok);
+    }
+
+    .animal-card.wiggle {
+      animation: wiggle 250ms ease-in-out 2;
+    }
+
+    .emoji {
+      font-size: 3.5rem;
+      line-height: 1;
+    }
+
+    .label {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .sound {
+      font-size: 1rem;
+      opacity: 0.8;
+    }
+
+    .footer-note {
+      margin-top: 14px;
+      font-size: 0.95rem;
+      text-align: center;
+      opacity: 0.85;
+    }
+
+    .success-fx {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      pointer-events: none;
+      opacity: 0;
+      z-index: 30;
+    }
+
+    .success-fx.show {
+      animation: fadeBurst 900ms ease-out forwards;
+    }
+
+    .success-core {
+      width: 96px;
+      height: 96px;
+      border-radius: 999px;
+      background: #35c759;
+      color: #fff;
+      font-size: 3rem;
+      font-weight: 800;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+      transform: scale(0.6);
+    }
+
+    .success-fx.show .success-core {
+      animation: popIn 380ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    }
+
+    .success-ring {
+      position: absolute;
+      width: 112px;
+      height: 112px;
+      border-radius: 999px;
+      border: 6px solid rgba(48, 183, 0, 0.6);
+      transform: scale(0.4);
+      opacity: 0;
+    }
+
+    .success-fx.show .success-ring {
+      animation: ringOut 700ms ease-out 90ms forwards;
+    }
+
+    .reward-fx {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 29;
+    }
+
+    .balloon {
+      position: absolute;
+      bottom: -90px;
+      width: 54px;
+      height: 68px;
+      border-radius: 50% 50% 48% 48%;
+      box-shadow: inset -8px -12px 0 rgba(0, 0, 0, 0.1);
+      animation: floatUp 1200ms ease-out forwards;
+    }
+
+    .balloon::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 100%;
+      width: 2px;
+      height: 42px;
+      background: rgba(60, 80, 110, 0.35);
+      transform: translateX(-50%);
+    }
+
+    .confetti {
+      position: absolute;
+      top: -16px;
+      width: 10px;
+      height: 14px;
+      border-radius: 2px;
+      animation: confettiDrop 1000ms linear forwards;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.6); }
+      75% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes ringOut {
+      0% { transform: scale(0.4); opacity: 0.95; }
+      100% { transform: scale(1.8); opacity: 0; }
+    }
+
+    @keyframes fadeBurst {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(0) scale(0.85); opacity: 0.95; }
+      100% { transform: translateY(-75vh) scale(1); opacity: 0; }
+    }
+
+    @keyframes confettiDrop {
+      0% { transform: translateY(0) rotate(0deg); opacity: 0.95; }
+      100% { transform: translateY(68vh) rotate(340deg); opacity: 0; }
+    }
+
+    @keyframes wiggle {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-2deg); }
+      75% { transform: rotate(2deg); }
+    }
+
+    @media (max-width: 560px) {
+      .header {
+        grid-template-columns: 1fr;
+      }
+
+      .score {
+        justify-self: start;
+      }
+
+      .header-side {
+        justify-items: start;
+      }
+
+      .animal-card {
+        min-height: 140px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="game">
+    <section class="header">
+      <div>
+        <h1 id="titleText">Djurens Ljudspel</h1>
+        <p class="subtitle" id="subtitleText">Fri lek: tryck pa ett djur. Utmaning: tryck pa Nasta ljud och valj sedan ratt djur.</p>
+      </div>
+      <div class="header-side">
+        <div class="lang-switch" aria-label="Sprakval">
+          <button class="lang-btn active" id="langSv" type="button" aria-pressed="true" title="Svenska">🇸🇪 SV</button>
+          <button class="lang-btn" id="langEn" type="button" aria-pressed="false" title="English">🇬🇧 EN</button>
+        </div>
+        <div class="score" aria-live="polite"><span id="scoreLabel">Stjarnor</span>: <span id="score">0</span></div>
+      </div>
+    </section>
+
+    <section class="prompt">
+      <div class="prompt-text" id="promptText">Uppvarmning: tryck pa valfritt djur for att hora dess riktiga ljud.</div>
+      <div class="controls">
+        <button class="btn-primary" id="nextSound">Nasta ljud</button>
+        <button class="btn-secondary" id="replaySound">Spela igen</button>
+      </div>
+    </section>
+
+    <section class="grid" id="animalGrid" aria-label="Djurknappar"></section>
+
+    <p class="footer-note" id="footerText">Tips till foraldrar och larare: Anvand helskarmslage pa touchenheter i klassrummet.</p>
+  </main>
+  <div class="success-fx" id="successFx" aria-hidden="true">
+    <div class="success-ring"></div>
+    <div class="success-core">✓</div>
+  </div>
+  <div class="reward-fx" id="rewardFx" aria-hidden="true"></div>
+
+  <script>
+    const animalCatalog = [
+      { id: "cow", emoji: "🐄", audio: "assets/audio/cow.ogg" },
+      { id: "dog", emoji: "🐶", audio: "assets/audio/dog.ogg" },
+      { id: "cat", emoji: "🐱", audio: "assets/audio/cat.oga" },
+      { id: "duck", emoji: "🦆", audio: "assets/audio/duck.wav" },
+      { id: "rooster", emoji: "🐓", audio: "assets/audio/rooster.ogg" },
+      { id: "sheep", emoji: "🐑", audio: "assets/audio/sheep.ogg" },
+      { id: "horse", emoji: "🐴", audio: "assets/audio/horse.ogg" },
+      { id: "frog", emoji: "🐸", audio: "assets/audio/frog.ogg" },
+      { id: "pig", emoji: "🐷", audio: "assets/audio/pig.ogg" },
+      { id: "owl", emoji: "🦉", audio: "assets/audio/owl.ogg" },
+      { id: "crow", emoji: "🐦", audio: "assets/audio/crow.ogg" },
+      { id: "goat", emoji: "🐐", audio: "assets/audio/goat.ogg" },
+      { id: "wolf", emoji: "🐺", audio: "assets/audio/wolf.ogg" },
+      { id: "monkey", emoji: "🐵", audio: "assets/audio/monkey.ogg" },
+      { id: "hen", emoji: "🐔", audio: "assets/audio/hen.ogg" },
+      { id: "boar", emoji: "🐗", audio: "assets/audio/boar.ogg" }
+    ];
+
+    const animalWords = {
+      sv: {
+        cow: { name: "Ko", sound: "Muu" },
+        dog: { name: "Hund", sound: "Voff" },
+        cat: { name: "Katt", sound: "Mjau" },
+        duck: { name: "Anka", sound: "Kvack" },
+        rooster: { name: "Tupp", sound: "Kuckeliku" },
+        sheep: { name: "Far", sound: "Baa" },
+        horse: { name: "Hast", sound: "Gnagg" },
+        frog: { name: "Groda", sound: "Kvak" },
+        pig: { name: "Gris", sound: "Noff" },
+        owl: { name: "Uggla", sound: "Hoa" },
+        crow: { name: "Kraka", sound: "Krax" },
+        goat: { name: "Get", sound: "Mae" },
+        wolf: { name: "Varg", sound: "Yl" },
+        monkey: { name: "Apa", sound: "Tjut" },
+        hen: { name: "Hona", sound: "Kackel" },
+        boar: { name: "Vildsvin", sound: "Grymt" }
+      },
+      en: {
+        cow: { name: "Cow", sound: "Moo" },
+        dog: { name: "Dog", sound: "Woof" },
+        cat: { name: "Cat", sound: "Meow" },
+        duck: { name: "Duck", sound: "Quack" },
+        rooster: { name: "Rooster", sound: "Cock-a-doodle-doo" },
+        sheep: { name: "Sheep", sound: "Baa" },
+        horse: { name: "Horse", sound: "Neigh" },
+        frog: { name: "Frog", sound: "Ribbit" },
+        pig: { name: "Pig", sound: "Oink" },
+        owl: { name: "Owl", sound: "Hoot" },
+        crow: { name: "Crow", sound: "Caw" },
+        goat: { name: "Goat", sound: "Bleat" },
+        wolf: { name: "Wolf", sound: "Howl" },
+        monkey: { name: "Monkey", sound: "Screech" },
+        hen: { name: "Hen", sound: "Cluck" },
+        boar: { name: "Boar", sound: "Grunt" }
+      }
+    };
+
+    const uiText = {
+      sv: {
+        title: "Djurens Ljudspel",
+        subtitle: "Fri lek: tryck pa ett djur. Utmaning: tryck pa Nasta ljud och valj sedan ratt djur.",
+        stars: "Stjarnor",
+        warmup: "Uppvarmning: tryck pa valfritt djur for att hora dess riktiga ljud.",
+        nextSound: "Nasta ljud",
+        replay: "Spela igen",
+        gridAria: "Djurknappar",
+        footer: "Tips till foraldrar och larare: Anvand helskarmslage pa touchenheter i klassrummet.",
+        challenge: "Vilket djur gjorde ljudet? Tryck pa ett kort.",
+        success: (animalName) => `Bra jobbat! Det ar ${animalName}. Tryck pa Nasta ljud for en ny runda.`,
+        retry: "Bra forsok. Tryck pa Spela igen och valj ett annat djur.",
+        says: (name, sound) => `${name} later ${sound}.`
+      },
+      en: {
+        title: "Animal Sounds Game",
+        subtitle: "Free play: tap any animal. Challenge: press Next Sound, then pick the matching animal.",
+        stars: "Stars",
+        warmup: "Warm up: tap any animal to hear its real sound.",
+        nextSound: "Next Sound",
+        replay: "Hear Again",
+        gridAria: "Animal buttons",
+        footer: "Tip for parents and teachers: Use fullscreen mode on touch devices in the classroom.",
+        challenge: "Which animal made that sound? Tap one card.",
+        success: (animalName) => `Great job! That is the ${animalName}. Press Next Sound for another round.`,
+        retry: "Nice try. Press Hear Again, then choose another animal.",
+        says: (name, sound) => `${name} says ${sound}.`
+      }
+    };
+
+    const grid = document.getElementById("animalGrid");
+    const scoreNode = document.getElementById("score");
+    const scoreLabelNode = document.getElementById("scoreLabel");
+    const promptText = document.getElementById("promptText");
+    const nextSoundBtn = document.getElementById("nextSound");
+    const replaySoundBtn = document.getElementById("replaySound");
+    const successFx = document.getElementById("successFx");
+    const rewardFx = document.getElementById("rewardFx");
+    const titleText = document.getElementById("titleText");
+    const subtitleText = document.getElementById("subtitleText");
+    const footerText = document.getElementById("footerText");
+    const langSvBtn = document.getElementById("langSv");
+    const langEnBtn = document.getElementById("langEn");
+
+    let currentLang = "sv";
+    let score = 0;
+    let challengeAnimal = null;
+    let challengeActive = false;
+    let lastCard = null;
+    let currentClip = null;
+    let successFxTimer = null;
+    let rewardFxTimer = null;
+    let audioCtx = null;
+    let promptKey = "warmup";
+    let promptAnimalId = null;
+
+    const audioByAnimal = new Map(
+      animalCatalog.map((animal) => {
+        const clip = new Audio(animal.audio);
+        clip.preload = "auto";
+        return [animal.id, clip];
+      })
+    );
+
+    function getWords(animalId) {
+      return animalWords[currentLang][animalId] || animalWords.sv[animalId];
+    }
+
+    function speakFallback(text) {
+      if (!("speechSynthesis" in window)) {
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.95;
+      utterance.pitch = 1.1;
+      utterance.volume = 1;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function stopAllAudio() {
+      if (currentClip) {
+        currentClip.pause();
+        currentClip.currentTime = 0;
+        currentClip = null;
+      }
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    }
+
+    function playAnimalSound(animal) {
+      stopAllAudio();
+      const clip = audioByAnimal.get(animal.id);
+      const words = getWords(animal.id);
+      if (!clip) {
+        speakFallback(uiText[currentLang].says(words.name, words.sound));
+        return;
+      }
+
+      clip.currentTime = 0;
+      currentClip = clip;
+      clip.play().catch(() => {
+        currentClip = null;
+        speakFallback(uiText[currentLang].says(words.name, words.sound));
+      });
+      clip.onended = () => {
+        if (currentClip === clip) {
+          currentClip = null;
+        }
+      };
+    }
+
+    function triggerSuccessAnimation() {
+      if (!successFx) {
+        return;
+      }
+      successFx.classList.remove("show");
+      void successFx.offsetWidth;
+      successFx.classList.add("show");
+      clearTimeout(successFxTimer);
+      successFxTimer = setTimeout(() => {
+        successFx.classList.remove("show");
+      }, 950);
+    }
+
+    function playSuccessTone() {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) {
+        return;
+      }
+      audioCtx = audioCtx || new AudioContextClass();
+      if (audioCtx.state === "suspended") {
+        audioCtx.resume();
+      }
+
+      const now = audioCtx.currentTime;
+      const notes = [784, 1046.5, 1318.5];
+      notes.forEach((frequency, index) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(frequency, now);
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(0.16, now + 0.02 + index * 0.07);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22 + index * 0.07);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now + index * 0.07);
+        osc.stop(now + 0.25 + index * 0.07);
+      });
+    }
+
+    function playClapSound() {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) {
+        return;
+      }
+      audioCtx = audioCtx || new AudioContextClass();
+      if (audioCtx.state === "suspended") {
+        audioCtx.resume();
+      }
+
+      const start = audioCtx.currentTime;
+      [0, 0.085].forEach((offset) => {
+        const bufferSize = Math.floor(audioCtx.sampleRate * 0.09);
+        const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i += 1) {
+          data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+        }
+
+        const source = audioCtx.createBufferSource();
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = "highpass";
+        filter.frequency.value = 800;
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0.0001, start + offset);
+        gain.gain.exponentialRampToValueAtTime(0.33, start + offset + 0.008);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + offset + 0.12);
+        source.buffer = noiseBuffer;
+        source.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+        source.start(start + offset);
+        source.stop(start + offset + 0.13);
+      });
+    }
+
+    function triggerBalloonReward() {
+      if (!rewardFx) {
+        return;
+      }
+      rewardFx.replaceChildren();
+      clearTimeout(rewardFxTimer);
+
+      const balloonColors = ["#ff5a5f", "#ffb400", "#2ec4b6", "#35a7ff", "#9c6bff", "#52c41a"];
+      const balloonLefts = [8, 24, 40, 56, 72, 88];
+      balloonLefts.forEach((left, index) => {
+        const balloon = document.createElement("div");
+        balloon.className = "balloon";
+        balloon.style.left = `${left}%`;
+        balloon.style.background = balloonColors[index % balloonColors.length];
+        balloon.style.animationDelay = `${index * 40}ms`;
+        rewardFx.appendChild(balloon);
+      });
+
+      const confettiColors = ["#ff8c42", "#35a7ff", "#30b700", "#ffd166", "#ef476f", "#06d6a0"];
+      for (let i = 0; i < 18; i += 1) {
+        const piece = document.createElement("div");
+        piece.className = "confetti";
+        piece.style.left = `${5 + i * 5}%`;
+        piece.style.background = confettiColors[i % confettiColors.length];
+        piece.style.animationDelay = `${(i % 6) * 35}ms`;
+        rewardFx.appendChild(piece);
+      }
+
+      rewardFxTimer = setTimeout(() => {
+        rewardFx.replaceChildren();
+      }, 1300);
+    }
+
+    function applyLanguage() {
+      const t = uiText[currentLang];
+      document.documentElement.lang = currentLang;
+      document.title = t.title;
+      titleText.textContent = t.title;
+      subtitleText.textContent = t.subtitle;
+      scoreLabelNode.textContent = t.stars;
+      nextSoundBtn.textContent = t.nextSound;
+      replaySoundBtn.textContent = t.replay;
+      footerText.textContent = t.footer;
+      grid.setAttribute("aria-label", t.gridAria);
+      langSvBtn.classList.toggle("active", currentLang === "sv");
+      langEnBtn.classList.toggle("active", currentLang === "en");
+      langSvBtn.setAttribute("aria-pressed", String(currentLang === "sv"));
+      langEnBtn.setAttribute("aria-pressed", String(currentLang === "en"));
+      renderCards();
+      setPrompt(promptKey, promptAnimalId);
+    }
+
+    function setPrompt(key, animalId = null) {
+      promptKey = key;
+      promptAnimalId = animalId;
+      const t = uiText[currentLang];
+
+      if (key === "challenge") {
+        promptText.textContent = t.challenge;
+        return;
+      }
+      if (key === "success" && animalId) {
+        promptText.textContent = t.success(getWords(animalId).name);
+        return;
+      }
+      if (key === "retry") {
+        promptText.textContent = t.retry;
+        return;
+      }
+      promptText.textContent = t.warmup;
+    }
+
+    function renderCards() {
+      const cards = animalCatalog.map((animal) => {
+        const words = getWords(animal.id);
+        const button = document.createElement("button");
+        button.className = "animal-card";
+        button.setAttribute("type", "button");
+        button.dataset.animal = animal.id;
+        button.setAttribute("aria-label", `${words.name}: ${words.sound}`);
+        button.innerHTML = `
+          <span class="emoji" aria-hidden="true">${animal.emoji}</span>
+          <span class="label">${words.name}</span>
+          <span class="sound">${words.sound}</span>
+        `;
+
+        button.addEventListener("click", () => {
+          playAnimal(animal, button);
+          if (challengeActive) {
+            evaluateChoice(animal, button);
+          }
+        });
+        return button;
+      });
+
+      grid.replaceChildren(...cards);
+      lastCard = null;
+    }
+
+    function playAnimal(animal, cardNode) {
+      if (lastCard) {
+        lastCard.classList.remove("good");
+      }
+      playAnimalSound(animal);
+      if (cardNode) {
+        cardNode.classList.add("good");
+        lastCard = cardNode;
+      }
+    }
+
+    function startChallenge() {
+      challengeAnimal = animalCatalog[Math.floor(Math.random() * animalCatalog.length)];
+      challengeActive = true;
+      setPrompt("challenge");
+      playChallengeSound();
+    }
+
+    function playChallengeSound() {
+      if (!challengeAnimal) {
+        startChallenge();
+        return;
+      }
+      playAnimalSound(challengeAnimal);
+    }
+
+    function evaluateChoice(animal, cardNode) {
+      if (!challengeAnimal) {
+        return;
+      }
+
+      if (animal.id === challengeAnimal.id) {
+        score += 1;
+        scoreNode.textContent = score;
+        setPrompt("success", animal.id);
+        cardNode.classList.add("good");
+        triggerSuccessAnimation();
+        playSuccessTone();
+        playClapSound();
+        triggerBalloonReward();
+        challengeActive = false;
+      } else {
+        cardNode.classList.add("wiggle");
+        setPrompt("retry");
+        setTimeout(() => cardNode.classList.remove("wiggle"), 700);
+      }
+    }
+
+    function setLanguage(lang) {
+      if (lang !== "sv" && lang !== "en") {
+        return;
+      }
+      currentLang = lang;
+      applyLanguage();
+    }
+
+    nextSoundBtn.addEventListener("click", startChallenge);
+    replaySoundBtn.addEventListener("click", playChallengeSound);
+    langSvBtn.addEventListener("click", () => setLanguage("sv"));
+    langEnBtn.addEventListener("click", () => setLanguage("en"));
+
+    applyLanguage();
+  </script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+# Audio Credits
+
+The game uses free-licensed recordings from Wikimedia Commons.
+
+- `assets/audio/cow.ogg`
+  - Source: https://commons.wikimedia.org/wiki/File:Single_Cow_Moo.ogg
+  - License: See file page on Wikimedia Commons
+- `assets/audio/dog.ogg`
+  - Source: https://commons.wikimedia.org/wiki/File:Barking_of_a_dog.ogg
+  - License: See file page on Wikimedia Commons
+- `assets/audio/cat.oga`
+  - Source: https://commons.wikimedia.org/wiki/File:Meow_of_a_pleading_cat.oga
+  - License: See file page on Wikimedia Commons
+- `assets/audio/duck.wav`
+  - Source: https://commons.wikimedia.org/wiki/File:Domestic_duck_sound_01.wav
+  - License: See file page on Wikimedia Commons
+- `assets/audio/rooster.ogg`
+  - Source: https://commons.wikimedia.org/wiki/File:Medium_rooster_crowing.ogg
+  - License: See file page on Wikimedia Commons
+- `assets/audio/sheep.ogg`
+  - Source: https://commons.wikimedia.org/wiki/File:Sheep_bleating.ogg
+  - License: See file page on Wikimedia Commons
+- `assets/audio/horse.ogg`
+  - Source: https://commons.wikimedia.org/wiki/File:Wiehern.ogg
+  - License: See file page on Wikimedia Commons
+- `assets/audio/frog.ogg`
+  - Source: https://commons.wikimedia.org/wiki/File:Frogs_croak_calling_chorus_at_night.ogg
+  - License: See file page on Wikimedia Commons
+- `assets/audio/pig.ogg`
+  - Source: https://commons.wikimedia.org/wiki/File:Mudchute_pig_1.ogg
+  - License: See file page on Wikimedia Commons
+- `assets/audio/owl.ogg`
+  - Source: https://commons.wikimedia.org/wiki/File:Tawny_Owl_(Strix_aluco).ogg
+  - License: See file page on Wikimedia Commons
+- `assets/audio/crow.ogg`
+  - Source: https://commons.wikimedia.org/wiki/File:Carrion_Crow_(Corvus_corone)_(W1CDR0001425_BD18).ogg
+  - License: See file page on Wikimedia Commons
+- `assets/audio/goat.ogg`
+  - Source: https://commons.wikimedia.org/wiki/File:Herd_of_goats_bleating.ogg
+  - License: See file page on Wikimedia Commons
+- `assets/audio/wolf.ogg`
+  - Source: https://commons.wikimedia.org/wiki/File:Wolf_howls.ogg
+  - License: See file page on Wikimedia Commons
+- `assets/audio/monkey.ogg`
+  - Source: https://commons.wikimedia.org/wiki/File:Mantled_Howler_Monkey_(Alouatta_palliata)_(W_ALOUATTA_PALLIATA_R1_C2).ogg
+  - License: See file page on Wikimedia Commons
+- `assets/audio/hen.ogg`
+  - Source: https://commons.wikimedia.org/wiki/File:Chickens_demanding_food.ogg
+  - License: See file page on Wikimedia Commons
+- `assets/audio/boar.ogg`
+  - Source: https://commons.wikimedia.org/wiki/File:Boar.Grwls(1).ogg
+  - License: See file page on Wikimedia Commons
