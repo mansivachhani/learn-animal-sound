@@ -497,7 +497,8 @@
         challenge: "Vilket djur gjorde ljudet? Tryck pa ett kort.",
         success: (animalName) => `Bra jobbat! Det ar ${animalName}. Tryck pa Nasta ljud for en ny runda.`,
         retry: "Bra forsok. Tryck pa Spela igen och valj ett annat djur.",
-        says: (name, sound) => `${name} later ${sound}.`
+        says: (name, sound) => `${name} later ${sound}.`,
+        praise: "Bra jobbat!"
       },
       en: {
         title: "Animal Sounds Game",
@@ -518,7 +519,8 @@
         challenge: "Which animal made that sound? Tap one card.",
         success: (animalName) => `Great job! That is the ${animalName}. Press Next Sound for another round.`,
         retry: "Nice try. Press Hear Again, then choose another animal.",
-        says: (name, sound) => `${name} says ${sound}.`
+        says: (name, sound) => `${name} says ${sound}.`,
+        praise: "Good job!"
       }
     };
 
@@ -838,6 +840,7 @@
         triggerSuccessAnimation();
         playSuccessTone();
         playClapSound();
+        speakFallback(uiText[currentLang].praise);
         triggerBalloonReward();
         challengeActive = false;
       } else {
