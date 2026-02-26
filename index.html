@@ -29,8 +29,8 @@
       font-family: var(--font);
       color: var(--text);
       background:
-        radial-gradient(circle at top right, #ffffff 0%, transparent 40%),
-        linear-gradient(180deg, var(--sky) 0%, var(--grass) 100%);
+        linear-gradient(rgba(234, 247, 255, 0.7), rgba(221, 244, 210, 0.78)),
+        url("assets/images/zoo-banner.svg") center top / cover no-repeat;
       display: flex;
       justify-content: center;
       padding: 24px 16px 36px;
@@ -378,9 +378,9 @@
     </section>
 
     <section class="category-bar" id="categoryBar" aria-label="Djurkategorier">
-      <button class="category-btn active" id="catHome" type="button">🏠 Home Animals</button>
+      <button class="category-btn active" id="catBirds" type="button">🐦 Birds</button>
+      <button class="category-btn" id="catHome" type="button">🏠 Home Animals</button>
       <button class="category-btn" id="catWild" type="button">🦁 Wild Animals</button>
-      <button class="category-btn" id="catBirds" type="button">🐦 Birds</button>
       <button class="category-btn" id="catFarm" type="button">🚜 Farm Animals</button>
     </section>
 
@@ -554,7 +554,7 @@
     let audioCtx = null;
     let promptKey = "warmup";
     let promptAnimalId = null;
-    let currentCategory = "home";
+    let currentCategory = "birds";
 
     const audioByAnimal = new Map(
       animalCatalog.map((animal) => {
@@ -864,9 +864,9 @@
       challengeAnimal = null;
       stopAllAudio();
       setPrompt("warmup");
+      catBirdsBtn.classList.toggle("active", category === "birds");
       catHomeBtn.classList.toggle("active", category === "home");
       catWildBtn.classList.toggle("active", category === "wild");
-      catBirdsBtn.classList.toggle("active", category === "birds");
       catFarmBtn.classList.toggle("active", category === "farm");
       renderCards();
     }
