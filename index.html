@@ -196,9 +196,37 @@
       animation: wiggle 250ms ease-in-out 2;
     }
 
-    .emoji {
-      font-size: 3.5rem;
+    .photo-wrap {
+      width: 92px;
+      height: 92px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #f4fbff;
+      border: 3px solid #e0eefb;
+      display: grid;
+      place-items: center;
+      position: relative;
+    }
+
+    .animal-photo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .emoji-fallback {
+      position: absolute;
+      inset: 0;
+      font-size: 3.2rem;
       line-height: 1;
+      display: grid;
+      place-items: center;
+      background: #f4fbff;
+    }
+
+    .photo-wrap.has-photo .emoji-fallback {
+      display: none;
     }
 
     .label {
@@ -396,30 +424,30 @@
 
   <script>
     const animalCatalog = [
-      { id: "cow", emoji: "🐄", audio: "assets/audio/cow.ogg", category: "farm" },
-      { id: "dog", emoji: "🐶", audio: "assets/audio/dog.ogg", category: "home" },
-      { id: "cat", emoji: "🐱", audio: "assets/audio/cat.oga", category: "home" },
-      { id: "duck", emoji: "🦆", audio: "assets/audio/duck.wav", category: "birds" },
-      { id: "rooster", emoji: "🐓", audio: "assets/audio/rooster.ogg", category: "birds" },
-      { id: "sheep", emoji: "🐑", audio: "assets/audio/sheep.ogg", category: "farm" },
-      { id: "horse", emoji: "🐴", audio: "assets/audio/horse.ogg", category: "farm" },
-      { id: "frog", emoji: "🐸", audio: "assets/audio/frog.ogg", category: "wild" },
-      { id: "pig", emoji: "🐷", audio: "assets/audio/pig.ogg", category: "farm" },
-      { id: "owl", emoji: "🦉", audio: "assets/audio/owl.ogg", category: "birds" },
-      { id: "crow", emoji: "🐦", audio: "assets/audio/crow.ogg", category: "birds" },
-      { id: "goat", emoji: "🐐", audio: "assets/audio/goat.ogg", category: "farm" },
-      { id: "wolf", emoji: "🐺", audio: "assets/audio/wolf.ogg", category: "wild" },
-      { id: "monkey", emoji: "🐵", audio: "assets/audio/monkey.ogg", category: "wild" },
-      { id: "hen", emoji: "🐔", audio: "assets/audio/hen.ogg", category: "birds" },
-      { id: "boar", emoji: "🐗", audio: "assets/audio/boar.ogg", category: "wild" },
-      { id: "guineaPig", emoji: "🐹", audio: "assets/audio/guinea-pig.ogg", category: "home" },
-      { id: "parrot", emoji: "🦜", audio: "assets/audio/parrot.ogg", category: "home" },
-      { id: "fox", emoji: "🦊", audio: "assets/audio/fox.ogg", category: "wild" },
-      { id: "deer", emoji: "🦌", audio: "assets/audio/deer.ogg", category: "wild" },
-      { id: "goose", emoji: "🪿", audio: "assets/audio/goose.ogg", category: "birds" },
-      { id: "sparrow", emoji: "🐤", audio: "assets/audio/sparrow.ogg", category: "birds" },
-      { id: "calf", emoji: "🐮", audio: "assets/audio/calf.ogg", category: "farm" },
-      { id: "piglet", emoji: "🐖", audio: "assets/audio/piglet.ogg", category: "farm" }
+      { id: "cow", emoji: "🐄", wikiPage: "Cattle", audio: "assets/audio/cow.ogg", category: "farm" },
+      { id: "dog", emoji: "🐶", wikiPage: "Dog", audio: "assets/audio/dog.ogg", category: "home" },
+      { id: "cat", emoji: "🐱", wikiPage: "Cat", audio: "assets/audio/cat.oga", category: "home" },
+      { id: "duck", emoji: "🦆", wikiPage: "Duck", audio: "assets/audio/duck.wav", category: "birds" },
+      { id: "rooster", emoji: "🐓", wikiPage: "Rooster", audio: "assets/audio/rooster.ogg", category: "birds" },
+      { id: "sheep", emoji: "🐑", wikiPage: "Sheep", audio: "assets/audio/sheep.ogg", category: "farm" },
+      { id: "horse", emoji: "🐴", wikiPage: "Horse", audio: "assets/audio/horse.ogg", category: "farm" },
+      { id: "frog", emoji: "🐸", wikiPage: "Frog", audio: "assets/audio/frog.ogg", category: "wild" },
+      { id: "pig", emoji: "🐷", wikiPage: "Pig", audio: "assets/audio/pig.ogg", category: "farm" },
+      { id: "owl", emoji: "🦉", wikiPage: "Owl", audio: "assets/audio/owl.ogg", category: "birds" },
+      { id: "crow", emoji: "🐦", wikiPage: "Crow", audio: "assets/audio/crow.ogg", category: "birds" },
+      { id: "goat", emoji: "🐐", wikiPage: "Goat", audio: "assets/audio/goat.ogg", category: "farm" },
+      { id: "wolf", emoji: "🐺", wikiPage: "Wolf", audio: "assets/audio/wolf.ogg", category: "wild" },
+      { id: "monkey", emoji: "🐵", wikiPage: "Monkey", audio: "assets/audio/monkey.ogg", category: "wild" },
+      { id: "hen", emoji: "🐔", wikiPage: "Chicken", audio: "assets/audio/hen.ogg", category: "birds" },
+      { id: "boar", emoji: "🐗", wikiPage: "Wild_boar", audio: "assets/audio/boar.ogg", category: "wild" },
+      { id: "guineaPig", emoji: "🐹", wikiPage: "Guinea_pig", audio: "assets/audio/guinea-pig.ogg", category: "home" },
+      { id: "parrot", emoji: "🦜", wikiPage: "Parrot", audio: "assets/audio/parrot.ogg", category: "home" },
+      { id: "fox", emoji: "🦊", wikiPage: "Red_fox", audio: "assets/audio/fox.ogg", category: "wild" },
+      { id: "deer", emoji: "🦌", wikiPage: "Deer", audio: "assets/audio/deer.ogg", category: "wild" },
+      { id: "goose", emoji: "🪿", wikiPage: "Goose", audio: "assets/audio/goose.ogg", category: "birds" },
+      { id: "sparrow", emoji: "🐤", wikiPage: "Sparrow", audio: "assets/audio/sparrow.ogg", category: "birds" },
+      { id: "calf", emoji: "🐮", wikiPage: "Calf", audio: "assets/audio/calf.ogg", category: "farm" },
+      { id: "piglet", emoji: "🐖", wikiPage: "Piglet", audio: "assets/audio/piglet.ogg", category: "farm" }
     ];
 
     const animalWords = {
@@ -563,6 +591,40 @@
         return [animal.id, clip];
       })
     );
+
+    const imageCache = new Map();
+    const imageLoaders = new Map();
+
+    function loadAnimalImage(animal) {
+      if (!animal.wikiPage) {
+        return Promise.resolve(null);
+      }
+      if (imageCache.has(animal.id)) {
+        return Promise.resolve(imageCache.get(animal.id));
+      }
+      if (imageLoaders.has(animal.id)) {
+        return imageLoaders.get(animal.id);
+      }
+
+      const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(animal.wikiPage)}`;
+      const loader = fetch(url)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          const img = data && data.thumbnail && data.thumbnail.source ? data.thumbnail.source : null;
+          imageCache.set(animal.id, img);
+          return img;
+        })
+        .catch(() => {
+          imageCache.set(animal.id, null);
+          return null;
+        })
+        .finally(() => {
+          imageLoaders.delete(animal.id);
+        });
+
+      imageLoaders.set(animal.id, loader);
+      return loader;
+    }
 
     function getWords(animalId) {
       return animalWords[currentLang][animalId] || animalWords.sv[animalId];
@@ -779,10 +841,23 @@
         button.dataset.animal = animal.id;
         button.setAttribute("aria-label", `${words.name}: ${words.sound}`);
         button.innerHTML = `
-          <span class="emoji" aria-hidden="true">${animal.emoji}</span>
+          <span class="photo-wrap" data-photo-wrap>
+            <img class="animal-photo" alt="${words.name}" loading="lazy" />
+            <span class="emoji-fallback" aria-hidden="true">${animal.emoji}</span>
+          </span>
           <span class="label">${words.name}</span>
           <span class="sound">${words.sound}</span>
         `;
+
+        const photoWrap = button.querySelector("[data-photo-wrap]");
+        const photo = button.querySelector(".animal-photo");
+        loadAnimalImage(animal).then((src) => {
+          if (!src || !photo || !photoWrap) {
+            return;
+          }
+          photo.src = src;
+          photoWrap.classList.add("has-photo");
+        });
 
         button.addEventListener("click", () => {
           playAnimal(animal, button);
