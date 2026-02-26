@@ -406,10 +406,10 @@
     </section>
 
     <section class="category-bar" id="categoryBar" aria-label="Djurkategorier">
-      <button class="category-btn active" id="catBirds" type="button">🐦 Birds</button>
+      <button class="category-btn active" id="catFarm" type="button">🚜 Farm Animals</button>
       <button class="category-btn" id="catHome" type="button">🏠 Home Animals</button>
       <button class="category-btn" id="catWild" type="button">🦁 Wild Animals</button>
-      <button class="category-btn" id="catFarm" type="button">🚜 Farm Animals</button>
+      <button class="category-btn" id="catBirds" type="button">🐦 Birds</button>
     </section>
 
     <section class="grid" id="animalGrid" aria-label="Djurknappar"></section>
@@ -445,9 +445,7 @@
       { id: "fox", emoji: "🦊", wikiPage: "Red_fox", audio: "assets/audio/fox.ogg", category: "wild" },
       { id: "deer", emoji: "🦌", wikiPage: "Deer", audio: "assets/audio/deer.ogg", category: "wild" },
       { id: "goose", emoji: "🪿", wikiPage: "Goose", audio: "assets/audio/goose.ogg", category: "birds" },
-      { id: "sparrow", emoji: "🐤", wikiPage: "Sparrow", audio: "assets/audio/sparrow.ogg", category: "birds" },
-      { id: "calf", emoji: "🐮", wikiPage: "Calf", audio: "assets/audio/calf.ogg", category: "farm" },
-      { id: "piglet", emoji: "🐖", wikiPage: "Piglet", audio: "assets/audio/piglet.ogg", category: "farm" }
+      { id: "sparrow", emoji: "🐤", wikiPage: "Sparrow", audio: "assets/audio/sparrow.ogg", category: "birds" }
     ];
 
     const animalWords = {
@@ -473,9 +471,7 @@
         fox: { name: "Rav", sound: "Skall" },
         deer: { name: "Hjort", sound: "Brol" },
         goose: { name: "Gas", sound: "Gack" },
-        sparrow: { name: "Sparv", sound: "Kvitter" },
-        calf: { name: "Kalv", sound: "Muu" },
-        piglet: { name: "Kulting", sound: "Noff" }
+        sparrow: { name: "Sparv", sound: "Kvitter" }
       },
       en: {
         cow: { name: "Cow", sound: "Moo" },
@@ -499,9 +495,7 @@
         fox: { name: "Fox", sound: "Bark" },
         deer: { name: "Deer", sound: "Bellow" },
         goose: { name: "Goose", sound: "Honk" },
-        sparrow: { name: "Sparrow", sound: "Chirp" },
-        calf: { name: "Calf", sound: "Moo" },
-        piglet: { name: "Piglet", sound: "Oink" }
+        sparrow: { name: "Sparrow", sound: "Chirp" }
       }
     };
 
@@ -582,7 +576,7 @@
     let audioCtx = null;
     let promptKey = "warmup";
     let promptAnimalId = null;
-    let currentCategory = "birds";
+    let currentCategory = "farm";
 
     const audioByAnimal = new Map(
       animalCatalog.map((animal) => {
@@ -939,10 +933,10 @@
       challengeAnimal = null;
       stopAllAudio();
       setPrompt("warmup");
-      catBirdsBtn.classList.toggle("active", category === "birds");
+      catFarmBtn.classList.toggle("active", category === "farm");
       catHomeBtn.classList.toggle("active", category === "home");
       catWildBtn.classList.toggle("active", category === "wild");
-      catFarmBtn.classList.toggle("active", category === "farm");
+      catBirdsBtn.classList.toggle("active", category === "birds");
       renderCards();
     }
 
