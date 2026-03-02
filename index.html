@@ -121,27 +121,6 @@
       flex-wrap: wrap;
     }
 
-    .category-bar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin: 0 0 14px;
-    }
-
-    .category-btn {
-      background: #ffffff;
-      border: 2px solid #dbe8f8;
-      color: var(--text);
-      font-size: 0.95rem;
-      padding: 8px 12px;
-      border-radius: 999px;
-    }
-
-    .category-btn.active {
-      background: #e9f6ff;
-      border-color: var(--accent-2);
-    }
-
     button {
       border: 0;
       cursor: pointer;
@@ -450,13 +429,6 @@
       </div>
     </section>
 
-    <section class="category-bar" id="categoryBar" aria-label="Djurkategorier">
-      <button class="category-btn active" id="catFarm" type="button">🚜 Farm Animals</button>
-      <button class="category-btn" id="catHome" type="button">🏠 Home Animals</button>
-      <button class="category-btn" id="catWild" type="button">🦁 Wild Animals</button>
-      <button class="category-btn" id="catBirds" type="button">🐦 Birds</button>
-    </section>
-
     <section class="grid" id="animalGrid" aria-label="Djurknappar"></section>
 
     <p class="footer-note" id="footerText">Tips till foraldrar och larare: Anvand helskarmslage pa touchenheter i klassrummet.</p>
@@ -559,13 +531,6 @@
         nextSound: "Nasta ljud",
         replay: "Spela igen",
         gridAria: "Djurknappar",
-        categoryAria: "Djurkategorier",
-        categories: {
-          home: "🏠 Hemdjur",
-          wild: "🦁 Vilda djur",
-          birds: "🐦 Faglar",
-          farm: "🚜 Gardsdjur"
-        },
         footer: "Tips till foraldrar och larare: Anvand helskarmslage pa touchenheter i klassrummet.",
         challenge: "Vilket djur gjorde ljudet? Tryck pa ett kort.",
         success: (animalName) => `Bra jobbat! Det ar ${animalName}. Tryck pa Nasta ljud for en ny runda.`,
@@ -582,13 +547,6 @@
         nextSound: "Next Sound",
         replay: "Hear Again",
         gridAria: "Animal buttons",
-        categoryAria: "Animal categories",
-        categories: {
-          home: "🏠 Home Animals",
-          wild: "🦁 Wild Animals",
-          birds: "🐦 Birds",
-          farm: "🚜 Farm Animals"
-        },
         footer: "Tip for parents and teachers: Use fullscreen mode on touch devices in the classroom.",
         challenge: "Which animal made that sound? Tap one card.",
         success: (animalName) => `Great job! That is the ${animalName}. Press Next Sound for another round.`,
@@ -615,11 +573,6 @@
     const footerText = document.getElementById("footerText");
     const langSvBtn = document.getElementById("langSv");
     const langEnBtn = document.getElementById("langEn");
-    const categoryBar = document.getElementById("categoryBar");
-    const catHomeBtn = document.getElementById("catHome");
-    const catWildBtn = document.getElementById("catWild");
-    const catBirdsBtn = document.getElementById("catBirds");
-    const catFarmBtn = document.getElementById("catFarm");
 
     let currentLang = "sv";
     let score = 0;
@@ -633,7 +586,6 @@
     let audioCtx = null;
     let promptKey = "warmup";
     let promptAnimalId = null;
-    let currentCategory = "farm";
 
     const audioByAnimal = new Map(
       animalCatalog.map((animal) => {
@@ -865,21 +817,12 @@
       replaySoundBtn.textContent = t.replay;
       footerText.textContent = t.footer;
       grid.setAttribute("aria-label", t.gridAria);
-      categoryBar.setAttribute("aria-label", t.categoryAria);
-      catHomeBtn.textContent = t.categories.home;
-      catWildBtn.textContent = t.categories.wild;
-      catBirdsBtn.textContent = t.categories.birds;
-      catFarmBtn.textContent = t.categories.farm;
       langSvBtn.classList.toggle("active", currentLang === "sv");
       langEnBtn.classList.toggle("active", currentLang === "en");
       langSvBtn.setAttribute("aria-pressed", String(currentLang === "sv"));
       langEnBtn.setAttribute("aria-pressed", String(currentLang === "en"));
       renderCards();
       setPrompt(promptKey, promptAnimalId);
-    }
-
-    function getVisibleAnimals() {
-      return animalCatalog.filter((animal) => animal.category === currentCategory);
     }
 
     function setPrompt(key, animalId = null) {
@@ -903,7 +846,7 @@
     }
 
     function renderCards() {
-      const cards = getVisibleAnimals().map((animal) => {
+      const cards = animalCatalog.map((animal) => {
         const words = getWords(animal.id);
         const button = document.createElement("button");
         button.className = "animal-card";
@@ -954,11 +897,7 @@
     }
 
     function startChallenge() {
-      const choices = getVisibleAnimals();
-      if (choices.length === 0) {
-        return;
-      }
-      challengeAnimal = choices[Math.floor(Math.random() * choices.length)];
+      challengeAnimal = animalCatalog[Math.floor(Math.random() * animalCatalog.length)];
       challengeActive = true;
       setPrompt("challenge");
       playChallengeSound();
@@ -1006,27 +945,10 @@
       applyLanguage();
     }
 
-    function setCategory(category) {
-      currentCategory = category;
-      challengeActive = false;
-      challengeAnimal = null;
-      stopAllAudio();
-      setPrompt("warmup");
-      catFarmBtn.classList.toggle("active", category === "farm");
-      catHomeBtn.classList.toggle("active", category === "home");
-      catWildBtn.classList.toggle("active", category === "wild");
-      catBirdsBtn.classList.toggle("active", category === "birds");
-      renderCards();
-    }
-
     nextSoundBtn.addEventListener("click", startChallenge);
     replaySoundBtn.addEventListener("click", playChallengeSound);
     langSvBtn.addEventListener("click", () => setLanguage("sv"));
     langEnBtn.addEventListener("click", () => setLanguage("en"));
-    catHomeBtn.addEventListener("click", () => setCategory("home"));
-    catWildBtn.addEventListener("click", () => setCategory("wild"));
-    catBirdsBtn.addEventListener("click", () => setCategory("birds"));
-    catFarmBtn.addEventListener("click", () => setCategory("farm"));
 
     applyLanguage();
   </script>
