@@ -426,6 +426,7 @@
       <div class="controls">
         <button class="btn-primary" id="nextSound">Nasta ljud</button>
         <button class="btn-secondary" id="replaySound">Spela igen</button>
+        <button class="btn-secondary" id="paradeMode">Djurparad</button>
       </div>
     </section>
 
@@ -530,6 +531,10 @@
         warmup: "Uppvarmning: tryck pa valfritt djur for att hora dess riktiga ljud.",
         nextSound: "Nasta ljud",
         replay: "Spela igen",
+        paradeStart: "Djurparad",
+        paradeStop: "Stoppa parad",
+        paradePlaying: "Djurparad pa gar!",
+        paradeDone: "Paraden ar klar!",
         gridAria: "Djurknappar",
         footer: "Tips till foraldrar och larare: Anvand helskarmslage pa touchenheter i klassrummet.",
         challenge: "Vilket djur gjorde ljudet? Tryck pa ett kort.",
@@ -546,6 +551,10 @@
         warmup: "Warm up: tap any animal to hear its real sound.",
         nextSound: "Next Sound",
         replay: "Hear Again",
+        paradeStart: "Animal Parade",
+        paradeStop: "Stop Parade",
+        paradePlaying: "Animal parade is playing!",
+        paradeDone: "Parade finished!",
         gridAria: "Animal buttons",
         footer: "Tip for parents and teachers: Use fullscreen mode on touch devices in the classroom.",
         challenge: "Which animal made that sound? Tap one card.",
@@ -563,6 +572,7 @@
     const promptText = document.getElementById("promptText");
     const nextSoundBtn = document.getElementById("nextSound");
     const replaySoundBtn = document.getElementById("replaySound");
+    const paradeModeBtn = document.getElementById("paradeMode");
     const successFx = document.getElementById("successFx");
     const rewardFx = document.getElementById("rewardFx");
     const surpriseFx = document.getElementById("surpriseFx");
@@ -586,6 +596,9 @@
     let audioCtx = null;
     let promptKey = "warmup";
     let promptAnimalId = null;
+    let paradeActive = false;
+    let paradeTimer = null;
+    let paradeIndex = 0;
 
     const audioByAnimal = new Map(
       animalCatalog.map((animal) => {
@@ -815,6 +828,7 @@
       scoreLabelNode.textContent = t.stars;
       nextSoundBtn.textContent = t.nextSound;
       replaySoundBtn.textContent = t.replay;
+      paradeModeBtn.textContent = paradeActive ? t.paradeStop : t.paradeStart;
       footerText.textContent = t.footer;
       grid.setAttribute("aria-label", t.gridAria);
       langSvBtn.classList.toggle("active", currentLang === "sv");
@@ -823,6 +837,50 @@
       langEnBtn.setAttribute("aria-pressed", String(currentLang === "en"));
       renderCards();
       setPrompt(promptKey, promptAnimalId);
+    }
+
+    function stopParade(resetLabel = true) {
+      paradeActive = false;
+      clearTimeout(paradeTimer);
+      paradeTimer = null;
+      paradeIndex = 0;
+      if (resetLabel) {
+        paradeModeBtn.textContent = uiText[currentLang].paradeStart;
+      }
+    }
+
+    function paradeStep() {
+      if (!paradeActive) {
+        return;
+      }
+      if (paradeIndex >= animalCatalog.length) {
+        stopParade(false);
+        setPrompt("warmup");
+        promptText.textContent = uiText[currentLang].paradeDone;
+        paradeModeBtn.textContent = uiText[currentLang].paradeStart;
+        return;
+      }
+
+      const animal = animalCatalog[paradeIndex];
+      const cardNode = grid.querySelector(`[data-animal="${animal.id}"]`);
+      playAnimal(animal, cardNode);
+      promptText.textContent = `${uiText[currentLang].paradePlaying} ${getWords(animal.id).name}`;
+      paradeIndex += 1;
+      paradeTimer = setTimeout(paradeStep, 1500);
+    }
+
+    function toggleParade() {
+      if (paradeActive) {
+        stopParade();
+        setPrompt("warmup");
+        return;
+      }
+      challengeActive = false;
+      challengeAnimal = null;
+      paradeActive = true;
+      paradeIndex = 0;
+      paradeModeBtn.textContent = uiText[currentLang].paradeStop;
+      paradeStep();
     }
 
     function setPrompt(key, animalId = null) {
@@ -897,6 +955,7 @@
     }
 
     function startChallenge() {
+      stopParade();
       challengeAnimal = animalCatalog[Math.floor(Math.random() * animalCatalog.length)];
       challengeActive = true;
       setPrompt("challenge");
@@ -947,6 +1006,7 @@
 
     nextSoundBtn.addEventListener("click", startChallenge);
     replaySoundBtn.addEventListener("click", playChallengeSound);
+    paradeModeBtn.addEventListener("click", toggleParade);
     langSvBtn.addEventListener("click", () => setLanguage("sv"));
     langEnBtn.addEventListener("click", () => setLanguage("en"));
 
