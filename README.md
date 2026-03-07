@@ -9,16 +9,24 @@ An interactive, kid-friendly web game where children tap animals to hear real an
 ## Features
 
 - Real animal audio clips (local assets)
+- Real animal photos on cards (with emoji fallback)
+- All animals shown on a single page
 - Tap-to-hear animal sounds
 - Listening challenge mode (guess the animal from sound)
+- Animal Parade mode (auto-play through all animals)
 - Score tracking with stars
-- Correct answer celebration:
+- Reward system for kids:
   - Green check animation
   - Balloon + confetti reward
   - Success tone + clap sound
+  - Surprise bonus popup every 3 correct answers
+- Spoken praise on correct guesses:
+  - Swedish: "Bra jobbat!"
+  - English: "Good job!"
 - Bilingual UI with flag switch:
   - Swedish (default)
   - English
+- Zoo-themed visual background
 - Mobile-friendly touch interface
 
 ## Tech Stack
@@ -30,6 +38,7 @@ An interactive, kid-friendly web game where children tap animals to hear real an
 
 - `index.html` - complete app (UI + logic)
 - `assets/audio/` - animal audio files
+- `assets/images/` - visual assets (zoo background banner)
 - `AUDIO_CREDITS.md` - audio source and license references
 
 ## Run Locally
@@ -53,7 +62,8 @@ Note: using a local HTTP server is recommended for reliable audio playback.
 2. Tap `Next Sound` to start a challenge round.
 3. Listen and tap the matching animal.
 4. Tap `Hear Again` to replay the challenge sound.
-5. Earn stars for correct answers.
+5. Tap `Animal Parade` to auto-play all animal sounds in sequence.
+6. Earn stars and unlock surprise rewards.
 
 ## Language Toggle
 
