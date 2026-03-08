@@ -121,6 +121,56 @@
       flex-wrap: wrap;
     }
 
+    .album {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 12px 14px;
+      margin: 0 0 14px;
+    }
+
+    .album-title {
+      margin: 0 0 8px;
+      font-size: 1rem;
+      font-weight: 800;
+    }
+
+    .album-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+      gap: 8px;
+    }
+
+    .sticker {
+      border-radius: 12px;
+      background: #f1f7ff;
+      border: 2px solid #dce9f8;
+      min-height: 64px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 6px;
+      opacity: 0.45;
+      transition: transform 0.15s ease, opacity 0.2s ease;
+    }
+
+    .sticker.unlocked {
+      opacity: 1;
+      background: #fff8dc;
+      border-color: #ffd166;
+      transform: translateY(-1px);
+    }
+
+    .sticker-emoji {
+      font-size: 1.8rem;
+      line-height: 1;
+    }
+
+    .sticker-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
     button {
       border: 0;
       cursor: pointer;
@@ -430,6 +480,11 @@
       </div>
     </section>
 
+    <section class="album" aria-label="Sticker album">
+      <p class="album-title" id="albumTitle">Stickeralbum</p>
+      <section class="album-grid" id="albumGrid"></section>
+    </section>
+
     <section class="grid" id="animalGrid" aria-label="Djurknappar"></section>
 
     <p class="footer-note" id="footerText">Tips till foraldrar och larare: Anvand helskarmslage pa touchenheter i klassrummet.</p>
@@ -535,6 +590,8 @@
         paradeStop: "Stoppa parad",
         paradePlaying: "Djurparad pa gar!",
         paradeDone: "Paraden ar klar!",
+        albumTitle: "Stickeralbum",
+        stickerLocked: "Las upp",
         gridAria: "Djurknappar",
         footer: "Tips till foraldrar och larare: Anvand helskarmslage pa touchenheter i klassrummet.",
         challenge: "Vilket djur gjorde ljudet? Tryck pa ett kort.",
@@ -555,6 +612,8 @@
         paradeStop: "Stop Parade",
         paradePlaying: "Animal parade is playing!",
         paradeDone: "Parade finished!",
+        albumTitle: "Sticker Album",
+        stickerLocked: "Unlock",
         gridAria: "Animal buttons",
         footer: "Tip for parents and teachers: Use fullscreen mode on touch devices in the classroom.",
         challenge: "Which animal made that sound? Tap one card.",
@@ -566,10 +625,23 @@
       }
     };
 
+    const stickerRewards = [
+      { need: 1, emoji: "⭐" },
+      { need: 2, emoji: "🎈" },
+      { need: 3, emoji: "🦁" },
+      { need: 4, emoji: "🦄" },
+      { need: 5, emoji: "🚜" },
+      { need: 6, emoji: "🐘" },
+      { need: 8, emoji: "🌈" },
+      { need: 10, emoji: "👑" }
+    ];
+
     const grid = document.getElementById("animalGrid");
     const scoreNode = document.getElementById("score");
     const scoreLabelNode = document.getElementById("scoreLabel");
     const promptText = document.getElementById("promptText");
+    const albumTitleNode = document.getElementById("albumTitle");
+    const albumGrid = document.getElementById("albumGrid");
     const nextSoundBtn = document.getElementById("nextSound");
     const replaySoundBtn = document.getElementById("replaySound");
     const paradeModeBtn = document.getElementById("paradeMode");
@@ -585,7 +657,7 @@
     const langEnBtn = document.getElementById("langEn");
 
     let currentLang = "sv";
-    let score = 0;
+    let score = Number(localStorage.getItem("animalScore") || 0);
     let challengeAnimal = null;
     let challengeActive = false;
     let lastCard = null;
@@ -819,6 +891,26 @@
       speakFallback(uiText[currentLang].surprise);
     }
 
+    function saveScore() {
+      localStorage.setItem("animalScore", String(score));
+    }
+
+    function renderStickerAlbum() {
+      const t = uiText[currentLang];
+      if (!albumGrid) {
+        return;
+      }
+      const cards = stickerRewards.map((sticker) => {
+        const unlocked = score >= sticker.need;
+        const node = document.createElement("div");
+        node.className = `sticker${unlocked ? " unlocked" : ""}`;
+        const label = unlocked ? `${sticker.need}★` : `${t.stickerLocked} ${sticker.need}★`;
+        node.innerHTML = `<span class="sticker-emoji">${sticker.emoji}</span><span class="sticker-label">${label}</span>`;
+        return node;
+      });
+      albumGrid.replaceChildren(...cards);
+    }
+
     function applyLanguage() {
       const t = uiText[currentLang];
       document.documentElement.lang = currentLang;
@@ -830,12 +922,14 @@
       replaySoundBtn.textContent = t.replay;
       paradeModeBtn.textContent = paradeActive ? t.paradeStop : t.paradeStart;
       footerText.textContent = t.footer;
+      albumTitleNode.textContent = t.albumTitle;
       grid.setAttribute("aria-label", t.gridAria);
       langSvBtn.classList.toggle("active", currentLang === "sv");
       langEnBtn.classList.toggle("active", currentLang === "en");
       langSvBtn.setAttribute("aria-pressed", String(currentLang === "sv"));
       langEnBtn.setAttribute("aria-pressed", String(currentLang === "en"));
       renderCards();
+      renderStickerAlbum();
       setPrompt(promptKey, promptAnimalId);
     }
 
@@ -978,6 +1072,8 @@
       if (animal.id === challengeAnimal.id) {
         score += 1;
         scoreNode.textContent = score;
+        saveScore();
+        renderStickerAlbum();
         setPrompt("success", animal.id);
         cardNode.classList.add("good");
         triggerSuccessAnimation();
@@ -1010,6 +1106,7 @@
     langSvBtn.addEventListener("click", () => setLanguage("sv"));
     langEnBtn.addEventListener("click", () => setLanguage("en"));
 
+    scoreNode.textContent = score;
     applyLanguage();
   </script>
 </body>
