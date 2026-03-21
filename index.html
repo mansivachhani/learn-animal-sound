@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="sv">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -464,8 +464,8 @@
       </div>
       <div class="header-side">
         <div class="lang-switch" aria-label="Sprakval">
-          <button class="lang-btn active" id="langSv" type="button" aria-pressed="true" title="Svenska">🇸🇪 SV</button>
-          <button class="lang-btn" id="langEn" type="button" aria-pressed="false" title="English">🇬🇧 EN</button>
+          <button class="lang-btn" id="langSv" type="button" aria-pressed="false" title="Svenska">🇸🇪 SV</button>
+          <button class="lang-btn active" id="langEn" type="button" aria-pressed="true" title="English">🇬🇧 EN</button>
         </div>
         <div class="score" aria-live="polite"><span id="scoreLabel">Stjarnor</span>: <span id="score">0</span></div>
       </div>
@@ -656,7 +656,7 @@
     const langSvBtn = document.getElementById("langSv");
     const langEnBtn = document.getElementById("langEn");
 
-    let currentLang = "sv";
+    let currentLang = "en";
     let score = Number(localStorage.getItem("animalScore") || 0);
     let challengeAnimal = null;
     let challengeActive = false;
