@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="Jungle forest background">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8ed6a2"/>
+      <stop offset="55%" stop-color="#5fbf8a"/>
+      <stop offset="100%" stop-color="#2f8f63"/>
+    </linearGradient>
+    <linearGradient id="mist" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <rect y="520" width="1600" height="380" fill="#2a6f4f"/>
+
+  <g opacity="0.35" fill="#1f5f44">
+    <ellipse cx="170" cy="540" rx="270" ry="210"/>
+    <ellipse cx="520" cy="500" rx="310" ry="220"/>
+    <ellipse cx="930" cy="520" rx="360" ry="230"/>
+    <ellipse cx="1380" cy="520" rx="330" ry="210"/>
+  </g>
+
+  <g fill="#2b7a57">
+    <circle cx="120" cy="430" r="120"/>
+    <circle cx="300" cy="390" r="135"/>
+    <circle cx="480" cy="435" r="120"/>
+    <circle cx="700" cy="395" r="140"/>
+    <circle cx="920" cy="420" r="140"/>
+    <circle cx="1140" cy="385" r="145"/>
+    <circle cx="1360" cy="430" r="120"/>
+    <circle cx="1520" cy="410" r="120"/>
+  </g>
+
+  <g fill="#1f5f44">
+    <rect x="220" y="360" width="26" height="290" rx="12"/>
+    <rect x="650" y="325" width="30" height="320" rx="12"/>
+    <rect x="1090" y="330" width="30" height="320" rx="12"/>
+    <rect x="1440" y="355" width="28" height="300" rx="12"/>
+  </g>
+
+  <g fill="#2f8f63" opacity="0.9">
+    <path d="M80 720c70-110 150-160 240-150-90 80-130 170-120 270z"/>
+    <path d="M380 760c55-120 120-180 210-180-70 90-95 180-75 280z"/>
+    <path d="M760 770c60-130 130-200 230-210-80 95-115 190-95 300z"/>
+    <path d="M1180 760c55-120 125-190 225-200-80 95-120 190-95 300z"/>
+    <path d="M1420 740c40-95 95-145 170-145-55 70-80 145-65 235z"/>
+  </g>
+
+  <rect width="1600" height="900" fill="url(#mist)"/>
+</svg>
