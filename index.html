@@ -477,6 +477,7 @@
         <button class="btn-primary" id="nextSound">Nasta ljud</button>
         <button class="btn-secondary" id="replaySound">Spela igen</button>
         <button class="btn-secondary" id="paradeMode">Djurparad</button>
+        <button class="btn-secondary" id="ambientToggle">Musik: Pa</button>
       </div>
     </section>
 
@@ -590,6 +591,8 @@
         paradeStop: "Stoppa parad",
         paradePlaying: "Djurparad pa gar!",
         paradeDone: "Paraden ar klar!",
+        ambientOn: "Musik: Pa",
+        ambientOff: "Musik: Av",
         albumTitle: "Stickeralbum",
         stickerLocked: "Las upp",
         gridAria: "Djurknappar",
@@ -612,6 +615,8 @@
         paradeStop: "Stop Parade",
         paradePlaying: "Animal parade is playing!",
         paradeDone: "Parade finished!",
+        ambientOn: "Music: On",
+        ambientOff: "Music: Off",
         albumTitle: "Sticker Album",
         stickerLocked: "Unlock",
         gridAria: "Animal buttons",
@@ -645,6 +650,7 @@
     const nextSoundBtn = document.getElementById("nextSound");
     const replaySoundBtn = document.getElementById("replaySound");
     const paradeModeBtn = document.getElementById("paradeMode");
+    const ambientToggleBtn = document.getElementById("ambientToggle");
     const successFx = document.getElementById("successFx");
     const rewardFx = document.getElementById("rewardFx");
     const surpriseFx = document.getElementById("surpriseFx");
@@ -671,6 +677,12 @@
     let paradeActive = false;
     let paradeTimer = null;
     let paradeIndex = 0;
+    let ambientEnabled = true;
+    let ambientStarted = false;
+    let ambientGain = null;
+    let ambientPulseTimer = null;
+    let ambientPercussionTimer = null;
+    let ambientBirdTimer = null;
 
     const audioByAnimal = new Map(
       animalCatalog.map((animal) => {
@@ -776,64 +788,222 @@
       }, 950);
     }
 
-    function playSuccessTone() {
+    function getAudioContext() {
       const AudioContextClass = window.AudioContext || window.webkitAudioContext;
       if (!AudioContextClass) {
-        return;
+        return null;
       }
       audioCtx = audioCtx || new AudioContextClass();
       if (audioCtx.state === "suspended") {
         audioCtx.resume();
       }
+      return audioCtx;
+    }
 
-      const now = audioCtx.currentTime;
+    function ensureAmbientGain() {
+      const ctx = getAudioContext();
+      if (!ctx) {
+        return null;
+      }
+      if (!ambientGain) {
+        ambientGain = ctx.createGain();
+        ambientGain.gain.setValueAtTime(0.03, ctx.currentTime);
+        ambientGain.connect(ctx.destination);
+      }
+      return { ctx, gainNode: ambientGain };
+    }
+
+    function setAmbientVolume(target) {
+      const out = ensureAmbientGain();
+      if (!out) {
+        return;
+      }
+      const { ctx, gainNode } = out;
+      gainNode.gain.cancelScheduledValues(ctx.currentTime);
+      gainNode.gain.setTargetAtTime(target, ctx.currentTime, 0.25);
+    }
+
+    function playAmbientPulse() {
+      const out = ensureAmbientGain();
+      if (!out || !ambientEnabled) {
+        return;
+      }
+      const { ctx, gainNode } = out;
+      const now = ctx.currentTime;
+      const notes = [164.81, 196.0, 220.0];
+      const root = notes[Math.floor(Math.random() * notes.length)];
+      const chord = [root, root * 1.25, root * 1.5];
+
+      chord.forEach((freq, index) => {
+        const osc = ctx.createOscillator();
+        const filter = ctx.createBiquadFilter();
+        const voiceGain = ctx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(freq, now);
+        filter.type = "lowpass";
+        filter.frequency.value = 950;
+        filter.Q.value = 0.8;
+        voiceGain.gain.setValueAtTime(0.0001, now + index * 0.05);
+        voiceGain.gain.exponentialRampToValueAtTime(0.07, now + 0.24 + index * 0.05);
+        voiceGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.9 + index * 0.05);
+
+        osc.connect(filter);
+        filter.connect(voiceGain);
+        voiceGain.connect(gainNode);
+        osc.start(now + index * 0.05);
+        osc.stop(now + 2.0 + index * 0.05);
+      });
+    }
+
+    function playAmbientPercussion() {
+      const out = ensureAmbientGain();
+      if (!out || !ambientEnabled) {
+        return;
+      }
+      const { ctx, gainNode } = out;
+      const now = ctx.currentTime;
+      const bufferSize = Math.floor(ctx.sampleRate * 0.12);
+      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i += 1) {
+        data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+      }
+
+      const source = ctx.createBufferSource();
+      const filter = ctx.createBiquadFilter();
+      const hitGain = ctx.createGain();
+      source.buffer = noiseBuffer;
+      filter.type = "bandpass";
+      filter.frequency.value = 380;
+      filter.Q.value = 1.2;
+      hitGain.gain.setValueAtTime(0.0001, now);
+      hitGain.gain.exponentialRampToValueAtTime(0.045, now + 0.02);
+      hitGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+      source.connect(filter);
+      filter.connect(hitGain);
+      hitGain.connect(gainNode);
+      source.start(now);
+      source.stop(now + 0.26);
+    }
+
+    function playAmbientBirdCall() {
+      const out = ensureAmbientGain();
+      if (!out || !ambientEnabled) {
+        return;
+      }
+      const { ctx, gainNode } = out;
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const chirpGain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(1200, now);
+      osc.frequency.exponentialRampToValueAtTime(1700, now + 0.08);
+      osc.frequency.exponentialRampToValueAtTime(900, now + 0.2);
+      chirpGain.gain.setValueAtTime(0.0001, now);
+      chirpGain.gain.exponentialRampToValueAtTime(0.03, now + 0.03);
+      chirpGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+      osc.connect(chirpGain);
+      chirpGain.connect(gainNode);
+      osc.start(now);
+      osc.stop(now + 0.24);
+    }
+
+    function startAmbientMusic() {
+      if (ambientStarted) {
+        return;
+      }
+      ambientStarted = true;
+      setAmbientVolume(ambientEnabled ? 0.032 : 0.0001);
+      playAmbientPulse();
+      playAmbientPercussion();
+
+      ambientPulseTimer = setInterval(() => {
+        playAmbientPulse();
+      }, 3000);
+
+      ambientPercussionTimer = setInterval(() => {
+        playAmbientPercussion();
+      }, 1700);
+
+      ambientBirdTimer = setInterval(() => {
+        if (Math.random() > 0.42) {
+          playAmbientBirdCall();
+        }
+      }, 3600);
+    }
+
+    function updateAmbientToggleLabel() {
+      if (!ambientToggleBtn) {
+        return;
+      }
+      ambientToggleBtn.textContent = ambientEnabled
+        ? uiText[currentLang].ambientOn
+        : uiText[currentLang].ambientOff;
+      ambientToggleBtn.setAttribute("aria-pressed", String(ambientEnabled));
+    }
+
+    function toggleAmbientMusic() {
+      startAmbientMusic();
+      ambientEnabled = !ambientEnabled;
+      setAmbientVolume(ambientEnabled ? 0.032 : 0.0001);
+      updateAmbientToggleLabel();
+    }
+
+    function unlockAudioOnFirstInteraction() {
+      getAudioContext();
+      startAmbientMusic();
+    }
+
+    function playSuccessTone() {
+      const ctx = getAudioContext();
+      if (!ctx) {
+        return;
+      }
+
+      const now = ctx.currentTime;
       const notes = [784, 1046.5, 1318.5];
       notes.forEach((frequency, index) => {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
         osc.type = "sine";
         osc.frequency.setValueAtTime(frequency, now);
         gain.gain.setValueAtTime(0.0001, now);
         gain.gain.exponentialRampToValueAtTime(0.16, now + 0.02 + index * 0.07);
         gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22 + index * 0.07);
         osc.connect(gain);
-        gain.connect(audioCtx.destination);
+        gain.connect(ctx.destination);
         osc.start(now + index * 0.07);
         osc.stop(now + 0.25 + index * 0.07);
       });
     }
 
     function playClapSound() {
-      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContextClass) {
+      const ctx = getAudioContext();
+      if (!ctx) {
         return;
       }
-      audioCtx = audioCtx || new AudioContextClass();
-      if (audioCtx.state === "suspended") {
-        audioCtx.resume();
-      }
 
-      const start = audioCtx.currentTime;
+      const start = ctx.currentTime;
       [0, 0.085].forEach((offset) => {
-        const bufferSize = Math.floor(audioCtx.sampleRate * 0.09);
-        const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const bufferSize = Math.floor(ctx.sampleRate * 0.09);
+        const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
         const data = noiseBuffer.getChannelData(0);
         for (let i = 0; i < bufferSize; i += 1) {
           data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
         }
 
-        const source = audioCtx.createBufferSource();
-        const filter = audioCtx.createBiquadFilter();
+        const source = ctx.createBufferSource();
+        const filter = ctx.createBiquadFilter();
         filter.type = "highpass";
         filter.frequency.value = 800;
-        const gain = audioCtx.createGain();
+        const gain = ctx.createGain();
         gain.gain.setValueAtTime(0.0001, start + offset);
         gain.gain.exponentialRampToValueAtTime(0.33, start + offset + 0.008);
         gain.gain.exponentialRampToValueAtTime(0.0001, start + offset + 0.12);
         source.buffer = noiseBuffer;
         source.connect(filter);
         filter.connect(gain);
-        gain.connect(audioCtx.destination);
+        gain.connect(ctx.destination);
         source.start(start + offset);
         source.stop(start + offset + 0.13);
       });
@@ -921,6 +1091,7 @@
       nextSoundBtn.textContent = t.nextSound;
       replaySoundBtn.textContent = t.replay;
       paradeModeBtn.textContent = paradeActive ? t.paradeStop : t.paradeStart;
+      updateAmbientToggleLabel();
       footerText.textContent = t.footer;
       albumTitleNode.textContent = t.albumTitle;
       grid.setAttribute("aria-label", t.gridAria);
@@ -1103,8 +1274,11 @@
     nextSoundBtn.addEventListener("click", startChallenge);
     replaySoundBtn.addEventListener("click", playChallengeSound);
     paradeModeBtn.addEventListener("click", toggleParade);
+    ambientToggleBtn.addEventListener("click", toggleAmbientMusic);
     langSvBtn.addEventListener("click", () => setLanguage("sv"));
     langEnBtn.addEventListener("click", () => setLanguage("en"));
+    document.addEventListener("pointerdown", unlockAudioOnFirstInteraction, { once: true });
+    document.addEventListener("keydown", unlockAudioOnFirstInteraction, { once: true });
 
     scoreNode.textContent = score;
     applyLanguage();
