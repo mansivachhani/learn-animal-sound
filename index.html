@@ -477,7 +477,6 @@
         <button class="btn-primary" id="nextSound">Nasta ljud</button>
         <button class="btn-secondary" id="replaySound">Spela igen</button>
         <button class="btn-secondary" id="paradeMode">Djurparad</button>
-        <button class="btn-secondary" id="ambientToggle">Musik: Pa</button>
       </div>
     </section>
 
@@ -591,8 +590,6 @@
         paradeStop: "Stoppa parad",
         paradePlaying: "Djurparad pa gar!",
         paradeDone: "Paraden ar klar!",
-        ambientOn: "Musik: Pa",
-        ambientOff: "Musik: Av",
         albumTitle: "Stickeralbum",
         stickerLocked: "Las upp",
         gridAria: "Djurknappar",
@@ -615,8 +612,6 @@
         paradeStop: "Stop Parade",
         paradePlaying: "Animal parade is playing!",
         paradeDone: "Parade finished!",
-        ambientOn: "Music: On",
-        ambientOff: "Music: Off",
         albumTitle: "Sticker Album",
         stickerLocked: "Unlock",
         gridAria: "Animal buttons",
@@ -650,7 +645,6 @@
     const nextSoundBtn = document.getElementById("nextSound");
     const replaySoundBtn = document.getElementById("replaySound");
     const paradeModeBtn = document.getElementById("paradeMode");
-    const ambientToggleBtn = document.getElementById("ambientToggle");
     const successFx = document.getElementById("successFx");
     const rewardFx = document.getElementById("rewardFx");
     const surpriseFx = document.getElementById("surpriseFx");
@@ -677,12 +671,12 @@
     let paradeActive = false;
     let paradeTimer = null;
     let paradeIndex = 0;
-    let ambientEnabled = true;
     let ambientStarted = false;
     let ambientGain = null;
     let ambientPulseTimer = null;
     let ambientPercussionTimer = null;
     let ambientBirdTimer = null;
+    const ambientVolume = 0.07;
 
     const audioByAnimal = new Map(
       animalCatalog.map((animal) => {
@@ -825,7 +819,7 @@
 
     function playAmbientPulse() {
       const out = ensureAmbientGain();
-      if (!out || !ambientEnabled) {
+      if (!out) {
         return;
       }
       const { ctx, gainNode } = out;
@@ -857,7 +851,7 @@
 
     function playAmbientPercussion() {
       const out = ensureAmbientGain();
-      if (!out || !ambientEnabled) {
+      if (!out) {
         return;
       }
       const { ctx, gainNode } = out;
@@ -888,7 +882,7 @@
 
     function playAmbientBirdCall() {
       const out = ensureAmbientGain();
-      if (!out || !ambientEnabled) {
+      if (!out) {
         return;
       }
       const { ctx, gainNode } = out;
@@ -913,7 +907,7 @@
         return;
       }
       ambientStarted = true;
-      setAmbientVolume(ambientEnabled ? 0.032 : 0.0001);
+      setAmbientVolume(ambientVolume);
       playAmbientPulse();
       playAmbientPercussion();
 
@@ -930,23 +924,6 @@
           playAmbientBirdCall();
         }
       }, 3600);
-    }
-
-    function updateAmbientToggleLabel() {
-      if (!ambientToggleBtn) {
-        return;
-      }
-      ambientToggleBtn.textContent = ambientEnabled
-        ? uiText[currentLang].ambientOn
-        : uiText[currentLang].ambientOff;
-      ambientToggleBtn.setAttribute("aria-pressed", String(ambientEnabled));
-    }
-
-    function toggleAmbientMusic() {
-      startAmbientMusic();
-      ambientEnabled = !ambientEnabled;
-      setAmbientVolume(ambientEnabled ? 0.032 : 0.0001);
-      updateAmbientToggleLabel();
     }
 
     function unlockAudioOnFirstInteraction() {
@@ -1091,7 +1068,6 @@
       nextSoundBtn.textContent = t.nextSound;
       replaySoundBtn.textContent = t.replay;
       paradeModeBtn.textContent = paradeActive ? t.paradeStop : t.paradeStart;
-      updateAmbientToggleLabel();
       footerText.textContent = t.footer;
       albumTitleNode.textContent = t.albumTitle;
       grid.setAttribute("aria-label", t.gridAria);
@@ -1274,7 +1250,6 @@
     nextSoundBtn.addEventListener("click", startChallenge);
     replaySoundBtn.addEventListener("click", playChallengeSound);
     paradeModeBtn.addEventListener("click", toggleParade);
-    ambientToggleBtn.addEventListener("click", toggleAmbientMusic);
     langSvBtn.addEventListener("click", () => setLanguage("sv"));
     langEnBtn.addEventListener("click", () => setLanguage("en"));
     document.addEventListener("pointerdown", unlockAudioOnFirstInteraction, { once: true });
