@@ -673,10 +673,13 @@
     let paradeIndex = 0;
     let ambientStarted = false;
     let ambientGain = null;
-    let ambientPulseTimer = null;
-    let ambientPercussionTimer = null;
+    let ambientNoiseSource = null;
+    let ambientDroneOscA = null;
+    let ambientDroneOscB = null;
+    let ambientLfo = null;
+    let ambientLfoGain = null;
     let ambientBirdTimer = null;
-    const ambientVolume = 0.07;
+    const ambientVolume = 0.11;
 
     const audioByAnimal = new Map(
       animalCatalog.map((animal) => {
@@ -817,67 +820,18 @@
       gainNode.gain.setTargetAtTime(target, ctx.currentTime, 0.25);
     }
 
-    function playAmbientPulse() {
-      const out = ensureAmbientGain();
-      if (!out) {
-        return;
-      }
-      const { ctx, gainNode } = out;
-      const now = ctx.currentTime;
-      const notes = [164.81, 196.0, 220.0];
-      const root = notes[Math.floor(Math.random() * notes.length)];
-      const chord = [root, root * 1.25, root * 1.5];
-
-      chord.forEach((freq, index) => {
-        const osc = ctx.createOscillator();
-        const filter = ctx.createBiquadFilter();
-        const voiceGain = ctx.createGain();
-        osc.type = "triangle";
-        osc.frequency.setValueAtTime(freq, now);
-        filter.type = "lowpass";
-        filter.frequency.value = 950;
-        filter.Q.value = 0.8;
-        voiceGain.gain.setValueAtTime(0.0001, now + index * 0.05);
-        voiceGain.gain.exponentialRampToValueAtTime(0.07, now + 0.24 + index * 0.05);
-        voiceGain.gain.exponentialRampToValueAtTime(0.0001, now + 1.9 + index * 0.05);
-
-        osc.connect(filter);
-        filter.connect(voiceGain);
-        voiceGain.connect(gainNode);
-        osc.start(now + index * 0.05);
-        osc.stop(now + 2.0 + index * 0.05);
-      });
-    }
-
-    function playAmbientPercussion() {
-      const out = ensureAmbientGain();
-      if (!out) {
-        return;
-      }
-      const { ctx, gainNode } = out;
-      const now = ctx.currentTime;
-      const bufferSize = Math.floor(ctx.sampleRate * 0.12);
-      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const data = noiseBuffer.getChannelData(0);
+    function createAmbientNoiseBuffer(ctx) {
+      const seconds = 2;
+      const bufferSize = Math.floor(ctx.sampleRate * seconds);
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      let last = 0;
       for (let i = 0; i < bufferSize; i += 1) {
-        data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+        const white = Math.random() * 2 - 1;
+        last = (last + (0.02 * white)) / 1.02;
+        data[i] = last * 2.6;
       }
-
-      const source = ctx.createBufferSource();
-      const filter = ctx.createBiquadFilter();
-      const hitGain = ctx.createGain();
-      source.buffer = noiseBuffer;
-      filter.type = "bandpass";
-      filter.frequency.value = 380;
-      filter.Q.value = 1.2;
-      hitGain.gain.setValueAtTime(0.0001, now);
-      hitGain.gain.exponentialRampToValueAtTime(0.045, now + 0.02);
-      hitGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
-      source.connect(filter);
-      filter.connect(hitGain);
-      hitGain.connect(gainNode);
-      source.start(now);
-      source.stop(now + 0.26);
+      return buffer;
     }
 
     function playAmbientBirdCall() {
@@ -890,45 +844,88 @@
       const osc = ctx.createOscillator();
       const chirpGain = ctx.createGain();
       osc.type = "sine";
-      osc.frequency.setValueAtTime(1200, now);
-      osc.frequency.exponentialRampToValueAtTime(1700, now + 0.08);
-      osc.frequency.exponentialRampToValueAtTime(900, now + 0.2);
+      osc.frequency.setValueAtTime(1400, now);
+      osc.frequency.exponentialRampToValueAtTime(2200, now + 0.06);
+      osc.frequency.exponentialRampToValueAtTime(1100, now + 0.18);
       chirpGain.gain.setValueAtTime(0.0001, now);
-      chirpGain.gain.exponentialRampToValueAtTime(0.03, now + 0.03);
-      chirpGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+      chirpGain.gain.exponentialRampToValueAtTime(0.02, now + 0.02);
+      chirpGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
       osc.connect(chirpGain);
       chirpGain.connect(gainNode);
       osc.start(now);
-      osc.stop(now + 0.24);
+      osc.stop(now + 0.22);
     }
 
     function startAmbientMusic() {
-      if (ambientStarted) {
+      const out = ensureAmbientGain();
+      if (!out || ambientStarted) {
         return;
       }
+      const { ctx, gainNode } = out;
       ambientStarted = true;
       setAmbientVolume(ambientVolume);
-      playAmbientPulse();
-      playAmbientPercussion();
 
-      ambientPulseTimer = setInterval(() => {
-        playAmbientPulse();
-      }, 3000);
+      const noiseFilter = ctx.createBiquadFilter();
+      noiseFilter.type = "bandpass";
+      noiseFilter.frequency.value = 520;
+      noiseFilter.Q.value = 0.6;
+      const noiseGain = ctx.createGain();
+      noiseGain.gain.value = 0.22;
+      ambientNoiseSource = ctx.createBufferSource();
+      ambientNoiseSource.buffer = createAmbientNoiseBuffer(ctx);
+      ambientNoiseSource.loop = true;
+      ambientNoiseSource.connect(noiseFilter);
+      noiseFilter.connect(noiseGain);
+      noiseGain.connect(gainNode);
+      ambientNoiseSource.start();
 
-      ambientPercussionTimer = setInterval(() => {
-        playAmbientPercussion();
-      }, 1700);
+      const droneGainA = ctx.createGain();
+      const droneGainB = ctx.createGain();
+      droneGainA.gain.value = 0.035;
+      droneGainB.gain.value = 0.026;
+      ambientDroneOscA = ctx.createOscillator();
+      ambientDroneOscB = ctx.createOscillator();
+      ambientDroneOscA.type = "triangle";
+      ambientDroneOscB.type = "sine";
+      ambientDroneOscA.frequency.value = 98;
+      ambientDroneOscB.frequency.value = 147;
+      ambientDroneOscA.connect(droneGainA);
+      ambientDroneOscB.connect(droneGainB);
+      droneGainA.connect(gainNode);
+      droneGainB.connect(gainNode);
 
+      ambientLfo = ctx.createOscillator();
+      ambientLfoGain = ctx.createGain();
+      ambientLfo.type = "sine";
+      ambientLfo.frequency.value = 0.085;
+      ambientLfoGain.gain.value = 0.012;
+      ambientLfo.connect(ambientLfoGain);
+      ambientLfoGain.connect(droneGainA.gain);
+      ambientLfoGain.connect(droneGainB.gain);
+
+      ambientDroneOscA.start();
+      ambientDroneOscB.start();
+      ambientLfo.start();
+
+      playAmbientBirdCall();
       ambientBirdTimer = setInterval(() => {
-        if (Math.random() > 0.42) {
+        if (Math.random() > 0.35) {
           playAmbientBirdCall();
         }
-      }, 3600);
+      }, 4800);
     }
 
     function unlockAudioOnFirstInteraction() {
       getAudioContext();
       startAmbientMusic();
+      setAmbientVolume(ambientVolume);
+    }
+
+    function ensureAmbientOnVisibility() {
+      if (document.visibilityState !== "visible") {
+        return;
+      }
+      unlockAudioOnFirstInteraction();
     }
 
     function playSuccessTone() {
@@ -1253,10 +1250,15 @@
     langSvBtn.addEventListener("click", () => setLanguage("sv"));
     langEnBtn.addEventListener("click", () => setLanguage("en"));
     document.addEventListener("pointerdown", unlockAudioOnFirstInteraction, { once: true });
+    document.addEventListener("touchstart", unlockAudioOnFirstInteraction, { once: true });
+    document.addEventListener("click", unlockAudioOnFirstInteraction, { once: true });
     document.addEventListener("keydown", unlockAudioOnFirstInteraction, { once: true });
+    document.addEventListener("visibilitychange", ensureAmbientOnVisibility);
+    window.addEventListener("load", unlockAudioOnFirstInteraction);
 
     scoreNode.textContent = score;
     applyLanguage();
+    unlockAudioOnFirstInteraction();
   </script>
 </body>
 </html>
