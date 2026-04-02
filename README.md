@@ -1,10 +1,10 @@
 # Learn Animal Sound
 
-An interactive, kid-friendly web game where children tap animals to hear real animal sounds and play a simple listening challenge.
-
-## Live Demo
+## Demo
 
 - [learn-animal-sound.vercel.app](https://learn-animal-sound.vercel.app)
+
+An interactive, kid-friendly web game where children tap animals to hear real animal sounds and play a simple listening challenge.
 
 ## Features
 
@@ -15,6 +15,10 @@ An interactive, kid-friendly web game where children tap animals to hear real an
 - Listening challenge mode (guess the animal from sound)
 - Animal Parade mode (auto-play through all animals)
 - Score tracking with stars
+- Guessed Animals tracker:
+  - Shows only guessed animals
+  - Green check mark for each correctly guessed animal
+  - Saved in local storage
 - Reward system for kids:
   - Green check animation
   - Balloon + confetti reward
@@ -24,9 +28,10 @@ An interactive, kid-friendly web game where children tap animals to hear real an
   - Swedish: "Bra jobbat!"
   - English: "Good job!"
 - Bilingual UI with flag switch:
-  - Swedish (default)
-  - English
-- Zoo-themed visual background
+  - English (default)
+  - Swedish
+- Jungle/forest visual background
+- Low-volume continuous jungle ambience
 - Mobile-friendly touch interface
 
 ## Tech Stack
@@ -38,7 +43,7 @@ An interactive, kid-friendly web game where children tap animals to hear real an
 
 - `index.html` - complete app (UI + logic)
 - `assets/audio/` - animal audio files
-- `assets/images/` - visual assets (zoo background banner)
+- `assets/images/` - visual assets
 - `AUDIO_CREDITS.md` - audio source and license references
 
 ## Run Locally
@@ -63,14 +68,14 @@ Note: using a local HTTP server is recommended for reliable audio playback.
 3. Listen and tap the matching animal.
 4. Tap `Hear Again` to replay the challenge sound.
 5. Tap `Animal Parade` to auto-play all animal sounds in sequence.
-6. Earn stars and unlock surprise rewards.
+6. Earn stars and reveal guessed animals in the tracker.
 
 ## Language Toggle
 
 Use the top-right flag buttons:
 
-- `🇸🇪 SV` (default)
-- `🇬🇧 EN`
+- `🇬🇧 EN` (default)
+- `🇸🇪 SV`
 
 All labels, prompts, and animal text switch instantly.
 
