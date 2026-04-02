@@ -6,16 +6,16 @@
   <title>Djurens Ljudspel</title>
   <style>
     :root {
-      --sky: #eaf7ff;
-      --grass: #ddf4d2;
+      --bg-1: #fef6e4;
+      --bg-2: #d7f0ff;
       --card: #ffffff;
-      --text: #16324f;
-      --accent: #ff8c42;
-      --accent-2: #35a7ff;
-      --ok: #30b700;
-      --shadow: 0 8px 20px rgba(22, 50, 79, 0.15);
+      --text: #25324a;
+      --accent: #ff8e3c;
+      --accent-2: #4f86e6;
+      --ok: #2bb673;
+      --shadow: 0 12px 30px rgba(37, 50, 74, 0.14);
       --radius: 20px;
-      --font: "Baloo 2", "Trebuchet MS", "Segoe UI", sans-serif;
+      --font: "Avenir Next", "Trebuchet MS", "Segoe UI", sans-serif;
     }
 
     * {
@@ -29,23 +29,34 @@
       font-family: var(--font);
       color: var(--text);
       background:
-        linear-gradient(rgba(234, 247, 255, 0.7), rgba(221, 244, 210, 0.78)),
+        radial-gradient(circle at top right, rgba(255, 224, 181, 0.72) 5%, transparent 38%),
+        radial-gradient(circle at left bottom, rgba(189, 224, 255, 0.7) 10%, transparent 44%),
+        linear-gradient(145deg, rgba(254, 246, 228, 0.92), rgba(215, 240, 255, 0.9)),
         url("assets/images/jungle-forest.svg") center top / cover no-repeat;
-      display: flex;
-      justify-content: center;
-      padding: 24px 16px 36px;
+      display: grid;
+      place-items: center;
+      padding: 16px;
     }
 
     .game {
       width: min(980px, 100%);
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 20px;
+      border: 1px solid rgba(223, 235, 255, 0.9);
     }
 
     .header {
-      background: rgba(255, 255, 255, 0.8);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
+      background:
+        radial-gradient(circle at 20% 22%, #fff1cd 0, #fff1cd 20%, transparent 48%),
+        radial-gradient(circle at 88% 12%, #d8edff 0, #d8edff 23%, transparent 53%),
+        linear-gradient(145deg, #fff9ef, #eef7ff);
+      border-radius: 18px;
+      box-shadow: 0 10px 24px rgba(37, 50, 74, 0.1);
+      border: 1px solid #e7eefc;
       padding: 18px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       display: grid;
       grid-template-columns: 1fr auto;
       align-items: center;
@@ -59,17 +70,20 @@
     }
 
     .subtitle {
-      margin: 4px 0 0;
-      font-size: clamp(1rem, 2.5vw, 1.1rem);
+      margin: 6px 0 0;
+      font-size: clamp(1rem, 2.4vw, 1.08rem);
+      color: #3e5073;
+      font-weight: 600;
     }
 
     .score {
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 700;
-      background: #fff;
+      background: #f1f6ff;
       border-radius: 999px;
       padding: 8px 14px;
-      border: 2px solid #e3effc;
+      border: 1px solid #d9e7ff;
+      color: #31517a;
     }
 
     .header-side {
@@ -85,24 +99,27 @@
 
     .lang-btn {
       background: #ffffff;
-      border: 2px solid #dbe8f8;
-      color: var(--text);
+      border: 1px solid #d3e3ff;
+      color: #243754;
       font-size: 0.9rem;
-      padding: 8px 10px;
+      padding: 8px 11px;
       border-radius: 999px;
+      box-shadow: 0 4px 10px rgba(60, 89, 134, 0.1);
     }
 
     .lang-btn.active {
-      border-color: var(--accent-2);
-      background: #e7f3ff;
+      border-color: #8cb4f3;
+      background: #e7f2ff;
+      color: #20416b;
     }
 
     .prompt {
-      background: #fff;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
+      background: #fff8ed;
+      border: 2px dashed #ffc170;
+      border-radius: 14px;
+      box-shadow: 0 8px 18px rgba(244, 166, 76, 0.12);
       padding: 14px 16px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -122,9 +139,10 @@
     }
 
     .album {
-      background: rgba(255, 255, 255, 0.9);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
+      background: #f7fbff;
+      border-radius: 14px;
+      border: 1px solid #d9e7ff;
+      box-shadow: 0 8px 16px rgba(52, 83, 128, 0.1);
       padding: 12px 14px;
       margin: 0 0 14px;
     }
@@ -142,22 +160,23 @@
     }
 
     .sticker {
-      border-radius: 12px;
-      background: #f1f7ff;
-      border: 2px solid #dce9f8;
+      border-radius: 10px;
+      background: #f9fcff;
+      border: 1px solid #dbe9ff;
       min-height: 64px;
       display: grid;
       place-items: center;
       text-align: center;
       padding: 6px;
-      opacity: 0.45;
-      transition: transform 0.15s ease, opacity 0.2s ease;
+      opacity: 0.5;
+      transition: transform 0.15s ease, opacity 0.2s ease, box-shadow 0.15s ease;
     }
 
     .sticker.unlocked {
       opacity: 1;
-      background: #fff8dc;
-      border-color: #ffd166;
+      background: #effdf4;
+      border-color: #7dd3a6;
+      box-shadow: 0 7px 14px rgba(21, 128, 61, 0.12);
       transform: translateY(-1px);
     }
 
@@ -179,7 +198,7 @@
       font-size: 1rem;
       font-weight: 700;
       padding: 10px 14px;
-      transition: transform 0.12s ease, filter 0.18s ease;
+      transition: transform 0.14s ease, filter 0.18s ease, box-shadow 0.18s ease;
     }
 
     button:active {
@@ -189,24 +208,28 @@
     .btn-primary {
       background: var(--accent);
       color: #fff;
+      box-shadow: 0 10px 20px rgba(249, 115, 22, 0.28);
     }
 
     .btn-secondary {
-      background: var(--accent-2);
-      color: #fff;
+      background: #e7f2ff;
+      color: #2d4f76;
+      border: 1px solid #d3e3ff;
+      box-shadow: 0 8px 16px rgba(52, 83, 128, 0.12);
     }
 
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: 12px;
+      margin-bottom: 6px;
     }
 
     .animal-card {
       background: var(--card);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      border: 3px solid transparent;
+      border-radius: 14px;
+      box-shadow: 0 8px 16px rgba(40, 60, 90, 0.12);
+      border: 2px solid #ebf1ff;
       min-height: 160px;
       padding: 12px;
       display: grid;
@@ -215,10 +238,18 @@
       gap: 8px;
       touch-action: manipulation;
       user-select: none;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+    }
+
+    .animal-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 18px rgba(40, 60, 90, 0.14);
+      border-color: #cedefe;
     }
 
     .animal-card.good {
       border-color: var(--ok);
+      box-shadow: 0 10px 18px rgba(43, 182, 115, 0.2);
     }
 
     .animal-card.wiggle {
@@ -226,15 +257,16 @@
     }
 
     .photo-wrap {
-      width: 120px;
-      height: 88px;
-      border-radius: 10px;
+      width: 124px;
+      height: 90px;
+      border-radius: 8px;
       overflow: hidden;
       background: #f4fbff;
-      border: 3px solid #e0eefb;
+      border: 2px solid #dce9fb;
       display: grid;
       place-items: center;
       position: relative;
+      box-shadow: inset 0 1px 2px rgba(34, 63, 98, 0.08);
     }
 
     .animal-photo {
