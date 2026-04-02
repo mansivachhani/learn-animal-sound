@@ -128,17 +128,19 @@
     }
 
     .prompt-text {
-      font-size: clamp(1rem, 2.2vw, 1.2rem);
+      font-size: clamp(0.98rem, 2vw, 1.1rem);
+      line-height: 1.32;
       font-weight: 700;
     }
 
     .controls {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
     }
 
-    .album {
+
+    .tracker {
       background: #f7fbff;
       border-radius: 14px;
       border: 1px solid #d9e7ff;
@@ -147,32 +149,33 @@
       margin: 0 0 14px;
     }
 
-    .album-title {
+    .tracker-title {
       margin: 0 0 8px;
       font-size: 1rem;
       font-weight: 800;
     }
 
-    .album-grid {
+    .tracker-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
       gap: 8px;
     }
 
-    .sticker {
+    .tracker-item {
       border-radius: 10px;
       background: #f9fcff;
       border: 1px solid #dbe9ff;
-      min-height: 64px;
+      min-height: 70px;
       display: grid;
       place-items: center;
       text-align: center;
       padding: 6px;
-      opacity: 0.5;
+      position: relative;
+      opacity: 0.72;
       transition: transform 0.15s ease, opacity 0.2s ease, box-shadow 0.15s ease;
     }
 
-    .sticker.unlocked {
+    .tracker-item.done {
       opacity: 1;
       background: #effdf4;
       border-color: #7dd3a6;
@@ -180,14 +183,32 @@
       transform: translateY(-1px);
     }
 
-    .sticker-emoji {
+    .tracker-emoji {
       font-size: 1.8rem;
       line-height: 1;
     }
 
-    .sticker-label {
-      font-size: 0.78rem;
+    .tracker-label {
+      font-size: 0.72rem;
       font-weight: 700;
+      color: #36547a;
+    }
+
+    .tracker-check {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: #16a34a;
+      color: #fff;
+      font-weight: 900;
+      font-size: 0.72rem;
+      border: 1px solid #fff;
+      box-shadow: 0 4px 8px rgba(22, 163, 74, 0.35);
+      display: grid;
+      place-items: center;
     }
 
     button {
@@ -195,9 +216,9 @@
       cursor: pointer;
       border-radius: 12px;
       font-family: inherit;
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-weight: 700;
-      padding: 10px 14px;
+      padding: 8px 12px;
       transition: transform 0.14s ease, filter 0.18s ease, box-shadow 0.18s ease;
     }
 
@@ -484,6 +505,28 @@
       .animal-card {
         min-height: 140px;
       }
+
+      .prompt {
+        padding: 10px 12px;
+        gap: 10px;
+      }
+
+      .prompt-text {
+        font-size: 0.94rem;
+      }
+
+      .controls {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+      }
+
+      .controls button {
+        padding: 8px 6px;
+        font-size: 0.78rem;
+        white-space: nowrap;
+      }
     }
   </style>
 </head>
@@ -512,9 +555,9 @@
       </div>
     </section>
 
-    <section class="album" aria-label="Sticker album">
-      <p class="album-title" id="albumTitle">Stickeralbum</p>
-      <section class="album-grid" id="albumGrid"></section>
+    <section class="tracker" aria-label="Guessed animals">
+      <p class="tracker-title" id="trackerTitle">Gissade djur</p>
+      <section class="tracker-grid" id="trackerGrid"></section>
     </section>
 
     <section class="grid" id="animalGrid" aria-label="Djurknappar"></section>
@@ -622,12 +665,11 @@
         paradeStop: "Stoppa parad",
         paradePlaying: "Djurparad pa gar!",
         paradeDone: "Paraden ar klar!",
-        albumTitle: "Stickeralbum",
-        stickerLocked: "Las upp",
+        trackerTitle: "Gissade djur",
         gridAria: "Djurknappar",
         footer: "Tips till foraldrar och larare: Anvand helskarmslage pa touchenheter i klassrummet.",
         challenge: "Vilket djur gjorde ljudet? Tryck pa ett kort.",
-        success: (animalName) => `Bra jobbat! Det ar ${animalName}. Tryck pa Nasta ljud for en ny runda.`,
+        success: (animalName) => `Bra jobbat! Det ar ${animalName}.`,
         retry: "Bra forsok. Tryck pa Spela igen och valj ett annat djur.",
         says: (name, sound) => `${name} later ${sound}.`,
         praise: "Bra jobbat!",
@@ -644,12 +686,11 @@
         paradeStop: "Stop Parade",
         paradePlaying: "Animal parade is playing!",
         paradeDone: "Parade finished!",
-        albumTitle: "Sticker Album",
-        stickerLocked: "Unlock",
+        trackerTitle: "Guessed Animals",
         gridAria: "Animal buttons",
         footer: "Tip for parents and teachers: Use fullscreen mode on touch devices in the classroom.",
         challenge: "Which animal made that sound? Tap one card.",
-        success: (animalName) => `Great job! That is the ${animalName}. Press Next Sound for another round.`,
+        success: (animalName) => `Great job! That is the ${animalName}.`,
         retry: "Nice try. Press Hear Again, then choose another animal.",
         says: (name, sound) => `${name} says ${sound}.`,
         praise: "Good job!",
@@ -657,23 +698,13 @@
       }
     };
 
-    const stickerRewards = [
-      { need: 1, emoji: "⭐" },
-      { need: 2, emoji: "🎈" },
-      { need: 3, emoji: "🦁" },
-      { need: 4, emoji: "🦄" },
-      { need: 5, emoji: "🚜" },
-      { need: 6, emoji: "🐘" },
-      { need: 8, emoji: "🌈" },
-      { need: 10, emoji: "👑" }
-    ];
 
     const grid = document.getElementById("animalGrid");
     const scoreNode = document.getElementById("score");
     const scoreLabelNode = document.getElementById("scoreLabel");
     const promptText = document.getElementById("promptText");
-    const albumTitleNode = document.getElementById("albumTitle");
-    const albumGrid = document.getElementById("albumGrid");
+    const trackerTitleNode = document.getElementById("trackerTitle");
+    const trackerGrid = document.getElementById("trackerGrid");
     const nextSoundBtn = document.getElementById("nextSound");
     const replaySoundBtn = document.getElementById("replaySound");
     const paradeModeBtn = document.getElementById("paradeMode");
@@ -690,6 +721,7 @@
 
     let currentLang = "en";
     let score = Number(localStorage.getItem("animalScore") || 0);
+    const guessedAnimals = new Set(JSON.parse(localStorage.getItem("guessedAnimals") || "[]"));
     let challengeAnimal = null;
     let challengeActive = false;
     let lastCard = null;
@@ -1071,20 +1103,24 @@
       localStorage.setItem("animalScore", String(score));
     }
 
-    function renderStickerAlbum() {
-      const t = uiText[currentLang];
-      if (!albumGrid) {
+    function saveGuessedAnimals() {
+      localStorage.setItem("guessedAnimals", JSON.stringify(Array.from(guessedAnimals)));
+    }
+
+    function renderGuessTracker() {
+      if (!trackerGrid) {
         return;
       }
-      const cards = stickerRewards.map((sticker) => {
-        const unlocked = score >= sticker.need;
+      const nodes = animalCatalog.map((animal) => {
+        const words = getWords(animal.id);
+        const done = guessedAnimals.has(animal.id);
         const node = document.createElement("div");
-        node.className = `sticker${unlocked ? " unlocked" : ""}`;
-        const label = unlocked ? `${sticker.need}★` : `${t.stickerLocked} ${sticker.need}★`;
-        node.innerHTML = `<span class="sticker-emoji">${sticker.emoji}</span><span class="sticker-label">${label}</span>`;
+        node.className = `tracker-item${done ? " done" : ""}`;
+        node.setAttribute("aria-label", words.name);
+        node.innerHTML = `<span class="tracker-emoji">${animal.emoji}</span><span class="tracker-label">${words.name}</span>${done ? '<span class="tracker-check">✓</span>' : ''}`;
         return node;
       });
-      albumGrid.replaceChildren(...cards);
+      trackerGrid.replaceChildren(...nodes);
     }
 
     function applyLanguage() {
@@ -1098,14 +1134,14 @@
       replaySoundBtn.textContent = t.replay;
       paradeModeBtn.textContent = paradeActive ? t.paradeStop : t.paradeStart;
       footerText.textContent = t.footer;
-      albumTitleNode.textContent = t.albumTitle;
+      trackerTitleNode.textContent = t.trackerTitle;
       grid.setAttribute("aria-label", t.gridAria);
       langSvBtn.classList.toggle("active", currentLang === "sv");
       langEnBtn.classList.toggle("active", currentLang === "en");
       langSvBtn.setAttribute("aria-pressed", String(currentLang === "sv"));
       langEnBtn.setAttribute("aria-pressed", String(currentLang === "en"));
       renderCards();
-      renderStickerAlbum();
+      renderGuessTracker();
       setPrompt(promptKey, promptAnimalId);
     }
 
@@ -1248,8 +1284,10 @@
       if (animal.id === challengeAnimal.id) {
         score += 1;
         scoreNode.textContent = score;
+        guessedAnimals.add(animal.id);
         saveScore();
-        renderStickerAlbum();
+        saveGuessedAnimals();
+        renderGuessTracker();
         setPrompt("success", animal.id);
         cardNode.classList.add("good");
         triggerSuccessAnimation();
