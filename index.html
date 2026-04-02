@@ -156,8 +156,10 @@
     }
 
     .tracker-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      align-items: flex-start;
       gap: 8px;
     }
 
@@ -166,6 +168,8 @@
       background: #f9fcff;
       border: 1px solid #dbe9ff;
       min-height: 70px;
+      width: 92px;
+      flex: 0 0 92px;
       display: grid;
       place-items: center;
       text-align: center;
