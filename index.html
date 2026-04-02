@@ -546,7 +546,6 @@
           <button class="lang-btn" id="langSv" type="button" aria-pressed="false" title="Svenska">🇸🇪 SV</button>
           <button class="lang-btn active" id="langEn" type="button" aria-pressed="true" title="English">🇬🇧 EN</button>
         </div>
-        <div class="score" aria-live="polite"><span id="scoreLabel">Stjarnor</span>: <span id="score">0</span></div>
       </div>
     </section>
 
@@ -661,7 +660,6 @@
       sv: {
         title: "Djurens Ljudspel",
         subtitle: "Fri lek: tryck pa ett djur. Utmaning: tryck pa Nasta ljud och valj sedan ratt djur.",
-        stars: "Stjarnor",
         warmup: "Uppvarmning: tryck pa valfritt djur for att hora dess riktiga ljud.",
         nextSound: "Nasta ljud",
         replay: "Spela igen",
@@ -682,7 +680,6 @@
       en: {
         title: "Animal Sounds Game",
         subtitle: "Free play: tap any animal. Challenge: press Next Sound, then pick the matching animal.",
-        stars: "Stars",
         warmup: "Warm up: tap any animal to hear its real sound.",
         nextSound: "Next Sound",
         replay: "Hear Again",
@@ -704,8 +701,6 @@
 
 
     const grid = document.getElementById("animalGrid");
-    const scoreNode = document.getElementById("score");
-    const scoreLabelNode = document.getElementById("scoreLabel");
     const promptText = document.getElementById("promptText");
     const trackerSection = document.getElementById("trackerSection");
     const trackerTitleNode = document.getElementById("trackerTitle");
@@ -1142,7 +1137,6 @@
       document.title = t.title;
       titleText.textContent = t.title;
       subtitleText.textContent = t.subtitle;
-      scoreLabelNode.textContent = t.stars;
       nextSoundBtn.textContent = t.nextSound;
       replaySoundBtn.textContent = t.replay;
       paradeModeBtn.textContent = paradeActive ? t.paradeStop : t.paradeStart;
@@ -1296,7 +1290,6 @@
 
       if (animal.id === challengeAnimal.id) {
         score += 1;
-        scoreNode.textContent = score;
         guessedAnimals.add(animal.id);
         saveScore();
         saveGuessedAnimals();
@@ -1339,7 +1332,6 @@
     document.addEventListener("visibilitychange", ensureAmbientOnVisibility);
     window.addEventListener("load", unlockAudioOnFirstInteraction);
 
-    scoreNode.textContent = score;
     applyLanguage();
     unlockAudioOnFirstInteraction();
   </script>
