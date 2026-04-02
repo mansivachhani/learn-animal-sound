@@ -555,7 +555,7 @@
       </div>
     </section>
 
-    <section class="tracker" aria-label="Guessed animals">
+    <section class="tracker" id="trackerSection" aria-label="Guessed animals">
       <p class="tracker-title" id="trackerTitle">Gissade djur</p>
       <section class="tracker-grid" id="trackerGrid"></section>
     </section>
@@ -703,6 +703,7 @@
     const scoreNode = document.getElementById("score");
     const scoreLabelNode = document.getElementById("scoreLabel");
     const promptText = document.getElementById("promptText");
+    const trackerSection = document.getElementById("trackerSection");
     const trackerTitleNode = document.getElementById("trackerTitle");
     const trackerGrid = document.getElementById("trackerGrid");
     const nextSoundBtn = document.getElementById("nextSound");
@@ -1108,16 +1109,24 @@
     }
 
     function renderGuessTracker() {
-      if (!trackerGrid) {
+      if (!trackerGrid || !trackerSection) {
         return;
       }
-      const nodes = animalCatalog.map((animal) => {
+
+      const guessedList = animalCatalog.filter((animal) => guessedAnimals.has(animal.id));
+      if (guessedList.length === 0) {
+        trackerSection.style.display = "none";
+        trackerGrid.replaceChildren();
+        return;
+      }
+
+      trackerSection.style.display = "";
+      const nodes = guessedList.map((animal) => {
         const words = getWords(animal.id);
-        const done = guessedAnimals.has(animal.id);
         const node = document.createElement("div");
-        node.className = `tracker-item${done ? " done" : ""}`;
+        node.className = "tracker-item done";
         node.setAttribute("aria-label", words.name);
-        node.innerHTML = `<span class="tracker-emoji">${animal.emoji}</span><span class="tracker-label">${words.name}</span>${done ? '<span class="tracker-check">✓</span>' : ''}`;
+        node.innerHTML = `<span class="tracker-emoji">${animal.emoji}</span><span class="tracker-label">${words.name}</span><span class="tracker-check">✓</span>`;
         return node;
       });
       trackerGrid.replaceChildren(...nodes);
