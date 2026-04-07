@@ -38,6 +38,97 @@
       padding: 16px;
     }
 
+    body.dark {
+      color: #e7edf8;
+      background:
+        radial-gradient(circle at top right, rgba(29, 47, 68, 0.72) 5%, transparent 42%),
+        radial-gradient(circle at left bottom, rgba(31, 67, 58, 0.62) 10%, transparent 44%),
+        linear-gradient(145deg, rgba(16, 22, 36, 0.95), rgba(22, 31, 48, 0.92)),
+        url("assets/images/jungle-forest.svg") center top / cover no-repeat;
+    }
+
+    body.dark .game {
+      background: linear-gradient(180deg, #182334 0%, #111a28 100%);
+      border-color: rgba(66, 89, 128, 0.65);
+      box-shadow: 0 16px 34px rgba(0, 0, 0, 0.35);
+    }
+
+    body.dark .header {
+      background: linear-gradient(145deg, #243247, #1a273a);
+      border-color: #3b5274;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+    }
+
+    body.dark .subtitle {
+      color: #b8c7df;
+    }
+
+    body.dark .lang-btn,
+    body.dark .theme-btn {
+      background: #213147;
+      border-color: #3a557d;
+      color: #e7edf8;
+      box-shadow: none;
+    }
+
+    body.dark .lang-btn.active {
+      background: #2b4d7d;
+      border-color: #6ea1ea;
+      color: #ffffff;
+    }
+
+    body.dark .prompt {
+      background: #1e2c40;
+      border-color: #4d6e9d;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.24);
+    }
+
+    body.dark .tracker {
+      background: #1a283b;
+      border-color: #3a547b;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+    }
+
+    body.dark .tracker-item {
+      background: #24344c;
+      border-color: #3f5c86;
+      opacity: 0.88;
+    }
+
+    body.dark .tracker-item.done {
+      background: #23413a;
+      border-color: #63bd96;
+    }
+
+    body.dark .tracker-label,
+    body.dark .footer-note {
+      color: #d0ddf1;
+    }
+
+    body.dark .btn-secondary {
+      background: #223753;
+      border-color: #415e88;
+      color: #e8eef8;
+      box-shadow: none;
+    }
+
+    body.dark .animal-card {
+      background: #213147;
+      border-color: #3c567d;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.24);
+    }
+
+    body.dark .animal-card:hover {
+      border-color: #6ea1ea;
+      box-shadow: 0 10px 18px rgba(17, 36, 62, 0.46);
+    }
+
+    body.dark .photo-wrap,
+    body.dark .emoji-fallback {
+      background: #1a2739;
+      border-color: #385274;
+    }
+
     .game {
       width: min(980px, 100%);
       background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
@@ -111,6 +202,18 @@
       border-color: #8cb4f3;
       background: #e7f2ff;
       color: #20416b;
+    }
+
+    .theme-btn {
+      background: #ffffff;
+      border: 1px solid #d3e3ff;
+      color: #243754;
+      font-size: 0.9rem;
+      padding: 8px 11px;
+      border-radius: 999px;
+      box-shadow: 0 4px 10px rgba(60, 89, 134, 0.1);
+      font-family: inherit;
+      font-weight: 700;
     }
 
     .prompt {
@@ -545,6 +648,7 @@
         <div class="lang-switch" aria-label="Sprakval">
           <button class="lang-btn" id="langSv" type="button" aria-pressed="false" title="Svenska">🇸🇪 SV</button>
           <button class="lang-btn active" id="langEn" type="button" aria-pressed="true" title="English">🇬🇧 EN</button>
+          <button class="theme-btn" id="themeToggle" type="button" aria-pressed="false" title="Theme">🌙 Dark</button>
         </div>
       </div>
     </section>
@@ -675,7 +779,9 @@
         retry: "Bra forsok. Tryck pa Spela igen och valj ett annat djur.",
         says: (name, sound) => `${name} later ${sound}.`,
         praise: "Bra jobbat!",
-        surprise: "Overraskning!"
+        surprise: "Overraskning!",
+        darkMode: "Morkt lage",
+        lightMode: "Ljust lage"
       },
       en: {
         title: "Animal Sounds Game",
@@ -695,7 +801,9 @@
         retry: "Nice try. Press Hear Again, then choose another animal.",
         says: (name, sound) => `${name} says ${sound}.`,
         praise: "Good job!",
-        surprise: "Surprise!"
+        surprise: "Surprise!",
+        darkMode: "Dark",
+        lightMode: "Light"
       }
     };
 
@@ -718,8 +826,10 @@
     const footerText = document.getElementById("footerText");
     const langSvBtn = document.getElementById("langSv");
     const langEnBtn = document.getElementById("langEn");
+    const themeToggleBtn = document.getElementById("themeToggle");
 
     let currentLang = "en";
+    let isDarkMode = localStorage.getItem("themeMode") === "dark";
     let score = Number(localStorage.getItem("animalScore") || 0);
     const guessedAnimals = new Set(JSON.parse(localStorage.getItem("guessedAnimals") || "[]"));
     let challengeAnimal = null;
@@ -1131,6 +1241,24 @@
       trackerGrid.replaceChildren(...nodes);
     }
 
+    function applyTheme() {
+      document.body.classList.toggle("dark", isDarkMode);
+      if (!themeToggleBtn) {
+        return;
+      }
+      const t = uiText[currentLang];
+      const modeLabel = isDarkMode ? t.lightMode : t.darkMode;
+      const icon = isDarkMode ? "☀️" : "🌙";
+      themeToggleBtn.textContent = `${icon} ${modeLabel}`;
+      themeToggleBtn.setAttribute("aria-pressed", String(isDarkMode));
+    }
+
+    function toggleTheme() {
+      isDarkMode = !isDarkMode;
+      localStorage.setItem("themeMode", isDarkMode ? "dark" : "light");
+      applyTheme();
+    }
+
     function applyLanguage() {
       const t = uiText[currentLang];
       document.documentElement.lang = currentLang;
@@ -1147,6 +1275,7 @@
       langEnBtn.classList.toggle("active", currentLang === "en");
       langSvBtn.setAttribute("aria-pressed", String(currentLang === "sv"));
       langEnBtn.setAttribute("aria-pressed", String(currentLang === "en"));
+      applyTheme();
       renderCards();
       renderGuessTracker();
       setPrompt(promptKey, promptAnimalId);
@@ -1325,6 +1454,7 @@
     paradeModeBtn.addEventListener("click", toggleParade);
     langSvBtn.addEventListener("click", () => setLanguage("sv"));
     langEnBtn.addEventListener("click", () => setLanguage("en"));
+    themeToggleBtn.addEventListener("click", toggleTheme);
     document.addEventListener("pointerdown", unlockAudioOnFirstInteraction, { once: true });
     document.addEventListener("touchstart", unlockAudioOnFirstInteraction, { once: true });
     document.addEventListener("click", unlockAudioOnFirstInteraction, { once: true });
