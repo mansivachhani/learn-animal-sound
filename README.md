@@ -13,7 +13,8 @@ An interactive, kid-friendly web game where children tap animals to hear real an
 - All animals shown on a single page
 - Tap-to-hear animal sounds
 - Listening challenge mode (guess the animal from sound)
-- Animal Parade mode (auto-play through all animals)
+- Category practice packs: All, Farm, Home, Birds, and Wild
+- Category-aware challenge and Animal Parade modes
 - Guessed Animals tracker:
   - Shows only guessed animals
   - Compact, left-aligned layout to save space
@@ -70,8 +71,9 @@ Note: using a local HTTP server is recommended for reliable audio playback.
 2. Tap `Next Sound` to start a challenge round.
 3. Listen and tap the matching animal.
 4. Tap `Hear Again` to replay the challenge sound.
-5. Tap `Animal Parade` to auto-play all animal sounds in sequence.
-6. Build your guessed-animal tracker as children identify sounds correctly.
+5. Pick a category pack to focus on farm, home, bird, or wild animals.
+6. Tap `Animal Parade` to auto-play sounds from the active category.
+7. Build your guessed-animal tracker as children identify sounds correctly.
 
 ## Language Toggle
 

@@ -112,6 +112,19 @@
       box-shadow: none;
     }
 
+    body.dark .category-btn {
+      background: #223753;
+      border-color: #415e88;
+      color: #e8eef8;
+      box-shadow: none;
+    }
+
+    body.dark .category-btn.active {
+      background: #2b4d7d;
+      border-color: #6ea1ea;
+      color: #ffffff;
+    }
+
     body.dark .animal-card {
       background: #213147;
       border-color: #3c567d;
@@ -242,6 +255,27 @@
       flex-wrap: wrap;
     }
 
+    .category-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 14px;
+    }
+
+    .category-btn {
+      background: #ffffff;
+      color: #2d4f76;
+      border: 1px solid #d3e3ff;
+      border-radius: 999px;
+      padding: 8px 12px;
+      box-shadow: 0 8px 16px rgba(52, 83, 128, 0.08);
+    }
+
+    .category-btn.active {
+      background: #e7f2ff;
+      border-color: #8cb4f3;
+      color: #20416b;
+    }
 
     .tracker {
       background: #f7fbff;
@@ -662,6 +696,8 @@
       </div>
     </section>
 
+    <section class="category-strip" id="categoryStrip" aria-label="Animal categories"></section>
+
     <section class="tracker" id="trackerSection" aria-label="Guessed animals">
       <p class="tracker-title" id="trackerTitle">Gissade djur</p>
       <section class="tracker-grid" id="trackerGrid"></section>
@@ -773,6 +809,15 @@
         paradeDone: "Paraden ar klar!",
         trackerTitle: "Gissade djur",
         gridAria: "Djurknappar",
+        categoryAria: "Djurfamiljer",
+        currentCategory: (categoryName) => `Familj: ${categoryName}`,
+        categories: {
+          all: "Alla",
+          farm: "Gard",
+          home: "Hemma",
+          birds: "Faglar",
+          wild: "Vilda"
+        },
         footer: "Tips till foraldrar och larare: Anvand helskarmslage pa touchenheter i klassrummet.",
         challenge: "Vilket djur gjorde ljudet? Tryck pa ett kort.",
         success: (animalName) => `Bra jobbat! Det ar ${animalName}.`,
@@ -795,6 +840,15 @@
         paradeDone: "Parade finished!",
         trackerTitle: "Guessed Animals",
         gridAria: "Animal buttons",
+        categoryAria: "Animal categories",
+        currentCategory: (categoryName) => `Category: ${categoryName}`,
+        categories: {
+          all: "All",
+          farm: "Farm",
+          home: "Home",
+          birds: "Birds",
+          wild: "Wild"
+        },
         footer: "Tip for parents and teachers: Use fullscreen mode on touch devices in the classroom.",
         challenge: "Which animal made that sound? Tap one card.",
         success: (animalName) => `Great job! That is the ${animalName}.`,
@@ -809,6 +863,7 @@
 
 
     const grid = document.getElementById("animalGrid");
+    const categoryStrip = document.getElementById("categoryStrip");
     const promptText = document.getElementById("promptText");
     const trackerSection = document.getElementById("trackerSection");
     const trackerTitleNode = document.getElementById("trackerTitle");
@@ -854,6 +909,7 @@
     let ambientLfoGain = null;
     let ambientBirdTimer = null;
     const ambientVolume = 0.11;
+    let selectedCategory = "all";
 
     const audioByAnimal = new Map(
       animalCatalog.map((animal) => {
@@ -899,6 +955,17 @@
 
     function getWords(animalId) {
       return animalWords[currentLang][animalId] || animalWords.sv[animalId];
+    }
+
+    function getVisibleAnimals() {
+      if (selectedCategory === "all") {
+        return animalCatalog;
+      }
+      return animalCatalog.filter((animal) => animal.category === selectedCategory);
+    }
+
+    function getCategoryName(categoryId) {
+      return uiText[currentLang].categories[categoryId] || uiText[currentLang].categories.all;
     }
 
     function speakFallback(text) {
@@ -1271,11 +1338,13 @@
       footerText.textContent = t.footer;
       trackerTitleNode.textContent = t.trackerTitle;
       grid.setAttribute("aria-label", t.gridAria);
+      categoryStrip.setAttribute("aria-label", t.categoryAria);
       langSvBtn.classList.toggle("active", currentLang === "sv");
       langEnBtn.classList.toggle("active", currentLang === "en");
       langSvBtn.setAttribute("aria-pressed", String(currentLang === "sv"));
       langEnBtn.setAttribute("aria-pressed", String(currentLang === "en"));
       applyTheme();
+      renderCategoryButtons();
       renderCards();
       renderGuessTracker();
       setPrompt(promptKey, promptAnimalId);
@@ -1292,10 +1361,11 @@
     }
 
     function paradeStep() {
+      const visibleAnimals = getVisibleAnimals();
       if (!paradeActive) {
         return;
       }
-      if (paradeIndex >= animalCatalog.length) {
+      if (paradeIndex >= visibleAnimals.length) {
         stopParade(false);
         setPrompt("warmup");
         promptText.textContent = uiText[currentLang].paradeDone;
@@ -1303,7 +1373,7 @@
         return;
       }
 
-      const animal = animalCatalog[paradeIndex];
+      const animal = visibleAnimals[paradeIndex];
       const cardNode = grid.querySelector(`[data-animal="${animal.id}"]`);
       playAnimal(animal, cardNode);
       promptText.textContent = `${uiText[currentLang].paradePlaying} ${getWords(animal.id).name}`;
@@ -1329,6 +1399,7 @@
       promptKey = key;
       promptAnimalId = animalId;
       const t = uiText[currentLang];
+      const categoryNote = selectedCategory === "all" ? "" : ` ${t.currentCategory(getCategoryName(selectedCategory))}`;
 
       if (key === "challenge") {
         promptText.textContent = t.challenge;
@@ -1342,11 +1413,34 @@
         promptText.textContent = t.retry;
         return;
       }
-      promptText.textContent = t.warmup;
+      promptText.textContent = `${t.warmup}${categoryNote}`;
+    }
+
+    function renderCategoryButtons() {
+      if (!categoryStrip) {
+        return;
+      }
+
+      const categories = ["all", "farm", "home", "birds", "wild"];
+      const buttons = categories.map((categoryId) => {
+        const button = document.createElement("button");
+        button.className = "category-btn";
+        button.type = "button";
+        button.textContent = getCategoryName(categoryId);
+        button.setAttribute("aria-pressed", String(selectedCategory === categoryId));
+        button.setAttribute("aria-label", uiText[currentLang].currentCategory(getCategoryName(categoryId)));
+        if (selectedCategory === categoryId) {
+          button.classList.add("active");
+        }
+        button.addEventListener("click", () => setCategory(categoryId));
+        return button;
+      });
+
+      categoryStrip.replaceChildren(...buttons);
     }
 
     function renderCards() {
-      const cards = animalCatalog.map((animal) => {
+      const cards = getVisibleAnimals().map((animal) => {
         const words = getWords(animal.id);
         const button = document.createElement("button");
         button.className = "animal-card";
@@ -1398,7 +1492,11 @@
 
     function startChallenge() {
       stopParade();
-      challengeAnimal = animalCatalog[Math.floor(Math.random() * animalCatalog.length)];
+      const visibleAnimals = getVisibleAnimals();
+      challengeAnimal = visibleAnimals[Math.floor(Math.random() * visibleAnimals.length)];
+      if (!challengeAnimal) {
+        return;
+      }
       challengeActive = true;
       setPrompt("challenge");
       playChallengeSound();
@@ -1447,6 +1545,19 @@
       }
       currentLang = lang;
       applyLanguage();
+    }
+
+    function setCategory(categoryId) {
+      if (!["all", "farm", "home", "birds", "wild"].includes(categoryId)) {
+        return;
+      }
+      selectedCategory = categoryId;
+      challengeActive = false;
+      challengeAnimal = null;
+      stopParade();
+      renderCategoryButtons();
+      renderCards();
+      setPrompt("warmup");
     }
 
     nextSoundBtn.addEventListener("click", startChallenge);
