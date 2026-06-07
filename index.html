@@ -89,6 +89,33 @@
       box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
     }
 
+    body.dark .progress-panel {
+      background: #17263a;
+      border-color: #385274;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.24);
+    }
+
+    body.dark .progress-card {
+      background: #223753;
+      border-color: #415e88;
+    }
+
+    body.dark .progress-value {
+      color: #f5f8ff;
+    }
+
+    body.dark .progress-label {
+      color: #b7c8df;
+    }
+
+    body.dark .progress-meter {
+      background: #263a56;
+    }
+
+    body.dark .progress-fill {
+      background: linear-gradient(90deg, #6ea1ea, #8df0c7);
+    }
+
     body.dark .tracker-item {
       background: #24344c;
       border-color: #3f5c86;
@@ -284,6 +311,69 @@
       box-shadow: 0 8px 16px rgba(52, 83, 128, 0.1);
       padding: 12px 14px;
       margin: 0 0 14px;
+    }
+
+    .progress-panel {
+      background: #f7fbff;
+      border-radius: 14px;
+      border: 1px solid #d9e7ff;
+      box-shadow: 0 8px 16px rgba(52, 83, 128, 0.1);
+      padding: 12px 14px;
+      margin: 0 0 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .progress-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .progress-card {
+      background: #ffffff;
+      border: 1px solid #dbe9ff;
+      border-radius: 12px;
+      padding: 10px;
+      min-height: 76px;
+      display: grid;
+      align-content: center;
+      gap: 4px;
+    }
+
+    .progress-value {
+      font-size: clamp(1.15rem, 3vw, 1.4rem);
+      font-weight: 800;
+      color: #23466f;
+      line-height: 1.1;
+    }
+
+    .progress-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #57749b;
+    }
+
+    .progress-meter {
+      width: 100%;
+      height: 12px;
+      border-radius: 999px;
+      background: #dfeeff;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      width: 0;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #ffb13b, #49b9ff);
+      transition: width 0.2s ease;
+    }
+
+    .progress-note {
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: #416386;
     }
 
     .tracker-title {
@@ -647,6 +737,10 @@
         min-height: 140px;
       }
 
+      .progress-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
       .prompt {
         padding: 10px 12px;
         gap: 10px;
@@ -697,6 +791,31 @@
     </section>
 
     <section class="category-strip" id="categoryStrip" aria-label="Animal categories"></section>
+
+    <section class="progress-panel" id="progressPanel" aria-label="Learning progress">
+      <div class="progress-grid">
+        <article class="progress-card">
+          <span class="progress-value" id="scoreValue">0</span>
+          <span class="progress-label" id="scoreLabel">Stars earned</span>
+        </article>
+        <article class="progress-card">
+          <span class="progress-value" id="streakValue">0</span>
+          <span class="progress-label" id="streakLabel">Current streak</span>
+        </article>
+        <article class="progress-card">
+          <span class="progress-value" id="bestStreakValue">0</span>
+          <span class="progress-label" id="bestStreakLabel">Best streak</span>
+        </article>
+        <article class="progress-card">
+          <span class="progress-value" id="progressValue">0 / 0</span>
+          <span class="progress-label" id="progressLabel">Pack progress</span>
+        </article>
+      </div>
+      <div class="progress-meter" aria-hidden="true">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-note" id="progressNote">Find animals to fill your pack.</div>
+    </section>
 
     <section class="tracker" id="trackerSection" aria-label="Guessed animals">
       <p class="tracker-title" id="trackerTitle">Gissade djur</p>
@@ -808,6 +927,13 @@
         paradePlaying: "Djurparad pa gar!",
         paradeDone: "Paraden ar klar!",
         trackerTitle: "Gissade djur",
+        scoreLabel: "Stjarnor",
+        streakLabel: "Svar i rad",
+        bestStreakLabel: "Basta raden",
+        progressLabel: "Familj framsteg",
+        progressNote: (done, total, categoryName) => done === total && total > 0
+          ? `Hela ${categoryName.toLowerCase()}-familjen ar klar!`
+          : `${done} av ${total} djur hittade i ${categoryName.toLowerCase()}.`,
         gridAria: "Djurknappar",
         categoryAria: "Djurfamiljer",
         currentCategory: (categoryName) => `Familj: ${categoryName}`,
@@ -839,6 +965,13 @@
         paradePlaying: "Animal parade is playing!",
         paradeDone: "Parade finished!",
         trackerTitle: "Guessed Animals",
+        scoreLabel: "Stars earned",
+        streakLabel: "Current streak",
+        bestStreakLabel: "Best streak",
+        progressLabel: "Pack progress",
+        progressNote: (done, total, categoryName) => done === total && total > 0
+          ? `You completed the ${categoryName.toLowerCase()} pack!`
+          : `${done} of ${total} animals found in ${categoryName.toLowerCase()}.`,
         gridAria: "Animal buttons",
         categoryAria: "Animal categories",
         currentCategory: (categoryName) => `Category: ${categoryName}`,
@@ -879,6 +1012,16 @@
     const titleText = document.getElementById("titleText");
     const subtitleText = document.getElementById("subtitleText");
     const footerText = document.getElementById("footerText");
+    const scoreValueNode = document.getElementById("scoreValue");
+    const streakValueNode = document.getElementById("streakValue");
+    const bestStreakValueNode = document.getElementById("bestStreakValue");
+    const progressValueNode = document.getElementById("progressValue");
+    const scoreLabelNode = document.getElementById("scoreLabel");
+    const streakLabelNode = document.getElementById("streakLabel");
+    const bestStreakLabelNode = document.getElementById("bestStreakLabel");
+    const progressLabelNode = document.getElementById("progressLabel");
+    const progressFillNode = document.getElementById("progressFill");
+    const progressNoteNode = document.getElementById("progressNote");
     const langSvBtn = document.getElementById("langSv");
     const langEnBtn = document.getElementById("langEn");
     const themeToggleBtn = document.getElementById("themeToggle");
@@ -886,6 +1029,8 @@
     let currentLang = "en";
     let isDarkMode = localStorage.getItem("themeMode") === "dark";
     let score = Number(localStorage.getItem("animalScore") || 0);
+    let streak = Number(localStorage.getItem("animalStreak") || 0);
+    let bestStreak = Number(localStorage.getItem("animalBestStreak") || 0);
     const guessedAnimals = new Set(JSON.parse(localStorage.getItem("guessedAnimals") || "[]"));
     let challengeAnimal = null;
     let challengeActive = false;
@@ -1280,8 +1425,33 @@
       localStorage.setItem("animalScore", String(score));
     }
 
+    function saveStreaks() {
+      localStorage.setItem("animalStreak", String(streak));
+      localStorage.setItem("animalBestStreak", String(bestStreak));
+    }
+
     function saveGuessedAnimals() {
       localStorage.setItem("guessedAnimals", JSON.stringify(Array.from(guessedAnimals)));
+    }
+
+    function renderProgressPanel() {
+      const visibleAnimals = getVisibleAnimals();
+      const completedCount = visibleAnimals.filter((animal) => guessedAnimals.has(animal.id)).length;
+      const totalCount = visibleAnimals.length;
+      const progressRatio = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
+      const categoryName = getCategoryName(selectedCategory);
+      const t = uiText[currentLang];
+
+      scoreValueNode.textContent = String(score);
+      streakValueNode.textContent = String(streak);
+      bestStreakValueNode.textContent = String(bestStreak);
+      progressValueNode.textContent = `${completedCount} / ${totalCount}`;
+      scoreLabelNode.textContent = t.scoreLabel;
+      streakLabelNode.textContent = t.streakLabel;
+      bestStreakLabelNode.textContent = t.bestStreakLabel;
+      progressLabelNode.textContent = t.progressLabel;
+      progressFillNode.style.width = `${progressRatio}%`;
+      progressNoteNode.textContent = t.progressNote(completedCount, totalCount, categoryName);
     }
 
     function renderGuessTracker() {
@@ -1346,6 +1516,7 @@
       applyTheme();
       renderCategoryButtons();
       renderCards();
+      renderProgressPanel();
       renderGuessTracker();
       setPrompt(promptKey, promptAnimalId);
     }
@@ -1517,9 +1688,13 @@
 
       if (animal.id === challengeAnimal.id) {
         score += 1;
+        streak += 1;
+        bestStreak = Math.max(bestStreak, streak);
         guessedAnimals.add(animal.id);
         saveScore();
+        saveStreaks();
         saveGuessedAnimals();
+        renderProgressPanel();
         renderGuessTracker();
         setPrompt("success", animal.id);
         cardNode.classList.add("good");
@@ -1533,6 +1708,9 @@
         }
         challengeActive = false;
       } else {
+        streak = 0;
+        saveStreaks();
+        renderProgressPanel();
         cardNode.classList.add("wiggle");
         setPrompt("retry");
         setTimeout(() => cardNode.classList.remove("wiggle"), 700);
@@ -1557,6 +1735,7 @@
       stopParade();
       renderCategoryButtons();
       renderCards();
+      renderProgressPanel();
       setPrompt("warmup");
     }
 

@@ -14,6 +14,7 @@ An interactive, kid-friendly web game where children tap animals to hear real an
 - Tap-to-hear animal sounds
 - Listening challenge mode (guess the animal from sound)
 - Category practice packs: All, Farm, Home, Birds, and Wild
+- Progress panel with saved stars, current streak, best streak, and pack completion meter
 - Category-aware challenge and Animal Parade modes
 - Guessed Animals tracker:
   - Shows only guessed animals
