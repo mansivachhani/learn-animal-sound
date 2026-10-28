@@ -457,6 +457,12 @@
       transform: scale(0.98);
     }
 
+    button:disabled {
+      cursor: not-allowed;
+      filter: grayscale(0.2);
+      opacity: 0.52;
+    }
+
     .btn-primary {
       background: var(--accent);
       color: #fff;
@@ -506,6 +512,12 @@
 
     .animal-card.wiggle {
       animation: wiggle 250ms ease-in-out 2;
+    }
+
+    .animal-card.hint {
+      border-color: #f2af26;
+      box-shadow: 0 0 0 4px rgba(255, 190, 61, 0.28), 0 10px 20px rgba(214, 142, 21, 0.2);
+      animation: hintPulse 900ms ease-in-out 2;
     }
 
     .photo-wrap {
@@ -720,6 +732,11 @@
       75% { transform: rotate(2deg); }
     }
 
+    @keyframes hintPulse {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-3px) scale(1.03); }
+    }
+
     @media (max-width: 560px) {
       .header {
         grid-template-columns: 1fr;
@@ -777,6 +794,7 @@
           <button class="lang-btn" id="langSv" type="button" aria-pressed="false" title="Svenska">🇸🇪 SV</button>
           <button class="lang-btn active" id="langEn" type="button" aria-pressed="true" title="English">🇬🇧 EN</button>
           <button class="theme-btn" id="themeToggle" type="button" aria-pressed="false" title="Theme">🌙 Dark</button>
+          <button class="theme-btn" id="ambientToggle" type="button" aria-pressed="true">🔊 Jungle sounds</button>
         </div>
       </div>
     </section>
@@ -786,6 +804,7 @@
       <div class="controls">
         <button class="btn-primary" id="nextSound">Nasta ljud</button>
         <button class="btn-secondary" id="replaySound">Spela igen</button>
+        <button class="btn-secondary" id="hintButton" disabled aria-disabled="true">Ledtrad</button>
         <button class="btn-secondary" id="paradeMode">Djurparad</button>
       </div>
     </section>
@@ -922,6 +941,7 @@
         warmup: "Uppvarmning: tryck pa valfritt djur for att hora dess riktiga ljud.",
         nextSound: "Nasta ljud",
         replay: "Spela igen",
+        hint: "Ledtrad",
         paradeStart: "Djurparad",
         paradeStop: "Stoppa parad",
         paradePlaying: "Djurparad pa gar!",
@@ -948,11 +968,14 @@
         challenge: "Vilket djur gjorde ljudet? Tryck pa ett kort.",
         success: (animalName) => `Bra jobbat! Det ar ${animalName}.`,
         retry: "Bra forsok. Tryck pa Spela igen och valj ett annat djur.",
+        hintMessage: (letter) => `Ledtrad: Djurets namn borjar pa ${letter}.`,
         says: (name, sound) => `${name} later ${sound}.`,
         praise: "Bra jobbat!",
         surprise: "Overraskning!",
         darkMode: "Morkt lage",
-        lightMode: "Ljust lage"
+        lightMode: "Ljust lage",
+        ambientOn: "🔊 Djungelljud",
+        ambientOff: "🔇 Djungelljud av"
       },
       en: {
         title: "Animal Sounds Game",
@@ -960,6 +983,7 @@
         warmup: "Warm up: tap any animal to hear its real sound.",
         nextSound: "Next Sound",
         replay: "Hear Again",
+        hint: "Hint",
         paradeStart: "Animal Parade",
         paradeStop: "Stop Parade",
         paradePlaying: "Animal parade is playing!",
@@ -986,11 +1010,14 @@
         challenge: "Which animal made that sound? Tap one card.",
         success: (animalName) => `Great job! That is the ${animalName}.`,
         retry: "Nice try. Press Hear Again, then choose another animal.",
+        hintMessage: (letter) => `Hint: This animal's name starts with ${letter}.`,
         says: (name, sound) => `${name} says ${sound}.`,
         praise: "Good job!",
         surprise: "Surprise!",
         darkMode: "Dark",
-        lightMode: "Light"
+        lightMode: "Light",
+        ambientOn: "🔊 Jungle sounds",
+        ambientOff: "🔇 Jungle sounds off"
       }
     };
 
@@ -1003,6 +1030,7 @@
     const trackerGrid = document.getElementById("trackerGrid");
     const nextSoundBtn = document.getElementById("nextSound");
     const replaySoundBtn = document.getElementById("replaySound");
+    const hintButton = document.getElementById("hintButton");
     const paradeModeBtn = document.getElementById("paradeMode");
     const successFx = document.getElementById("successFx");
     const rewardFx = document.getElementById("rewardFx");
@@ -1025,6 +1053,7 @@
     const langSvBtn = document.getElementById("langSv");
     const langEnBtn = document.getElementById("langEn");
     const themeToggleBtn = document.getElementById("themeToggle");
+    const ambientToggleBtn = document.getElementById("ambientToggle");
 
     let currentLang = "en";
     let isDarkMode = localStorage.getItem("themeMode") === "dark";
@@ -1054,6 +1083,7 @@
     let ambientLfoGain = null;
     let ambientBirdTimer = null;
     const ambientVolume = 0.11;
+    let ambientMuted = localStorage.getItem("ambientMuted") === "true";
     let selectedCategory = "all";
 
     const audioByAnimal = new Map(
@@ -1303,8 +1333,10 @@
 
     function unlockAudioOnFirstInteraction() {
       getAudioContext();
-      startAmbientMusic();
-      setAmbientVolume(ambientVolume);
+      if (!ambientMuted) {
+        startAmbientMusic();
+        setAmbientVolume(ambientVolume);
+      }
     }
 
     function ensureAmbientOnVisibility() {
@@ -1496,6 +1528,25 @@
       applyTheme();
     }
 
+    function applyAmbientControl() {
+      const t = uiText[currentLang];
+      ambientToggleBtn.textContent = ambientMuted ? t.ambientOff : t.ambientOn;
+      ambientToggleBtn.setAttribute("aria-pressed", String(!ambientMuted));
+      ambientToggleBtn.setAttribute("title", ambientMuted ? t.ambientOff : t.ambientOn);
+    }
+
+    function toggleAmbientSounds() {
+      ambientMuted = !ambientMuted;
+      localStorage.setItem("ambientMuted", String(ambientMuted));
+      if (ambientMuted) {
+        setAmbientVolume(0);
+      } else {
+        startAmbientMusic();
+        setAmbientVolume(ambientVolume);
+      }
+      applyAmbientControl();
+    }
+
     function applyLanguage() {
       const t = uiText[currentLang];
       document.documentElement.lang = currentLang;
@@ -1504,6 +1555,7 @@
       subtitleText.textContent = t.subtitle;
       nextSoundBtn.textContent = t.nextSound;
       replaySoundBtn.textContent = t.replay;
+      hintButton.textContent = t.hint;
       paradeModeBtn.textContent = paradeActive ? t.paradeStop : t.paradeStart;
       footerText.textContent = t.footer;
       trackerTitleNode.textContent = t.trackerTitle;
@@ -1514,6 +1566,7 @@
       langSvBtn.setAttribute("aria-pressed", String(currentLang === "sv"));
       langEnBtn.setAttribute("aria-pressed", String(currentLang === "en"));
       applyTheme();
+      applyAmbientControl();
       renderCategoryButtons();
       renderCards();
       renderProgressPanel();
@@ -1560,6 +1613,7 @@
       }
       challengeActive = false;
       challengeAnimal = null;
+      updateHintButton();
       paradeActive = true;
       paradeIndex = 0;
       paradeModeBtn.textContent = uiText[currentLang].paradeStop;
@@ -1584,7 +1638,18 @@
         promptText.textContent = t.retry;
         return;
       }
+      if (key === "hint" && animalId) {
+        const firstLetter = Array.from(getWords(animalId).name)[0].toLocaleUpperCase(currentLang);
+        promptText.textContent = t.hintMessage(firstLetter);
+        return;
+      }
       promptText.textContent = `${t.warmup}${categoryNote}`;
+    }
+
+    function updateHintButton() {
+      const enabled = challengeActive && Boolean(challengeAnimal);
+      hintButton.disabled = !enabled;
+      hintButton.setAttribute("aria-disabled", String(!enabled));
     }
 
     function renderCategoryButtons() {
@@ -1669,6 +1734,7 @@
         return;
       }
       challengeActive = true;
+      updateHintButton();
       setPrompt("challenge");
       playChallengeSound();
     }
@@ -1679,6 +1745,23 @@
         return;
       }
       playAnimalSound(challengeAnimal);
+    }
+
+    function showHint() {
+      if (!challengeActive || !challengeAnimal) {
+        return;
+      }
+
+      setPrompt("hint", challengeAnimal.id);
+
+      const cardNode = grid.querySelector(`[data-animal="${challengeAnimal.id}"]`);
+      if (!cardNode) {
+        return;
+      }
+      cardNode.classList.remove("hint");
+      void cardNode.offsetWidth;
+      cardNode.classList.add("hint");
+      setTimeout(() => cardNode.classList.remove("hint"), 1800);
     }
 
     function evaluateChoice(animal, cardNode) {
@@ -1707,6 +1790,7 @@
           triggerSurpriseReward();
         }
         challengeActive = false;
+        updateHintButton();
       } else {
         streak = 0;
         saveStreaks();
@@ -1732,6 +1816,7 @@
       selectedCategory = categoryId;
       challengeActive = false;
       challengeAnimal = null;
+      updateHintButton();
       stopParade();
       renderCategoryButtons();
       renderCards();
@@ -1741,10 +1826,12 @@
 
     nextSoundBtn.addEventListener("click", startChallenge);
     replaySoundBtn.addEventListener("click", playChallengeSound);
+    hintButton.addEventListener("click", showHint);
     paradeModeBtn.addEventListener("click", toggleParade);
     langSvBtn.addEventListener("click", () => setLanguage("sv"));
     langEnBtn.addEventListener("click", () => setLanguage("en"));
     themeToggleBtn.addEventListener("click", toggleTheme);
+    ambientToggleBtn.addEventListener("click", toggleAmbientSounds);
     document.addEventListener("pointerdown", unlockAudioOnFirstInteraction, { once: true });
     document.addEventListener("touchstart", unlockAudioOnFirstInteraction, { once: true });
     document.addEventListener("click", unlockAudioOnFirstInteraction, { once: true });
